@@ -1,15 +1,14 @@
 ---
 import '../styles/global.css';
 import NavigationArrows from '../components/NavigationArrows.astro';
-import ProgressIndicator from '../components/ProgressIndicator.astro';
+import WorkflowMinimap from '../components/WorkflowMinimap.astro';
 
 interface Props {
   title: string;
-  currentNode: number;
-  pageName: string;
+  currentPage: number;
 }
 
-const { title, currentNode, pageName } = Astro.props;
+const { title, currentPage } = Astro.props;
 const totalPages = 4;
 ---
 
@@ -23,14 +22,13 @@ const totalPages = 4;
     <title>{title}</title>
   </head>
   <body>
-    <ProgressIndicator
-      currentNode={currentNode}
+    <WorkflowMinimap
+      currentPage={currentPage}
       totalPages={totalPages}
-      pageName={pageName}
     />
     
     <NavigationArrows
-      currentNode={currentNode}
+      currentNode={currentPage}
       totalPages={totalPages}
     />
     

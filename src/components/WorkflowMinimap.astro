@@ -1,0 +1,63 @@
+---
+interface Props {
+  currentPage: number;
+  totalPages: number;
+}
+
+const { currentPage, totalPages } = Astro.props;
+
+const pages = [
+  { id: 1, label: 'Start', href: '/' },
+  { id: 2, label: 'Services', href: '/services/' },
+  { id: 3, label: 'Projects', href: '/projects/' },
+  { id: 4, label: 'Contact', href: '/contact/' },
+];
+---
+
+<nav class="fixed top-6 left-1/2 -translate-x-1/2 z-50" aria-label="Navigation workflow">
+  <div class="flex items-center gap-0 px-6 py-3 rounded-full border border-border bg-surface/90 backdrop-blur-sm">
+    
+    {pages.map((page, index) => (
+      <div class="flex items-center">
+        <!-- Node dot -->
+        <a
+          href={page.href}
+          class={`
+            flex flex-col items-center gap-1.5 group cursor-pointer transition-all duration-200
+            ${page.id === currentPage 
+              ? 'opacity-100' 
+              : 'opacity-40 hover:opacity-70'}
+          `}
+          aria-label={`Aller au node ${page.id} : ${page.label}`}
+          aria-current={page.id === currentPage ? 'page' : undefined}
+        >
+          <div class={`
+            w-2.5 h-2.5 rounded-full transition-all duration-300
+            ${page.id === currentPage 
+              ? 'bg-accent shadow-[0_0_8px_2px_rgba(232,184,106,0.4)] scale-125' 
+              : 'bg-fg-dim group-hover:bg-fg'}
+          `}></div>
+          <span class={`
+            font-mono text-[10px] tracking-wider uppercase whitespace-nowrap transition-colors
+            ${page.id === currentPage ? 'text-accent' : 'text-fg-dim'}
+          `}>
+            {page.label}
+          </span>
+        </a>
+
+        {/* Connector line */}
+        {index < pages.length - 1 && (
+          <div class="flex items-center mx-2 -mt-4">
+            <div class={`
+              w-8 md:w-12 h-px transition-colors duration-300
+              ${page.id < currentPage 
+                ? 'bg-accent/40' 
+                : 'bg-border'}
+            `}></div>
+          </div>
+        )}
+      </div>
+    ))}
+
+  </div>
+</nav>
