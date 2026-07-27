@@ -1,0 +1,72 @@
+---
+import '../styles/global.css';
+import NavigationArrows from '../components/NavigationArrows.astro';
+import ProgressIndicator from '../components/ProgressIndicator.astro';
+
+interface Props {
+  title: string;
+  currentNode: number;
+  pageName: string;
+}
+
+const { title, currentNode, pageName } = Astro.props;
+const totalPages = 4;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Portfolio Workflow — Achille Robbe" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <title>{title}</title>
+  </head>
+  <body>
+    <ProgressIndicator
+      currentNode={currentNode}
+      totalPages={totalPages}
+      pageName={pageName}
+    />
+    
+    <NavigationArrows
+      currentNode={currentNode}
+      totalPages={totalPages}
+    />
+    
+    <main class="relative z-10">
+      <slot />
+    </main>
+    
+    <script>
+      // Navigation par flèches latérales
+      document.addEventListener('DOMContentLoaded', () => {
+        const arrows = document.querySelectorAll('.nav-arrow');
+        
+        arrows.forEach(arrow => {
+          arrow.addEventListener('click', (e) => {
+            const action = (e.currentTarget as HTMLElement).dataset.action;
+            if (action === 'prev') {
+              const prevLink = document.querySelector('a[data-nav="prev"]');
+              if (prevLink) (prevLink as HTMLAnchorElement).click();
+            } else if (action === 'next') {
+              const nextLink = document.querySelector('a[data-nav="next"]');
+              if (nextLink) (nextLink as HTMLAnchorElement).click();
+            }
+          });
+        });
+
+        // Navigation clavier
+        document.addEventListener('keydown', (e) => {
+          if (e.key === 'ArrowLeft') {
+            const prevLink = document.querySelector('a[data-nav="prev"]');
+            if (prevLink) (prevLink as HTMLAnchorElement).click();
+          } else if (e.key === 'ArrowRight') {
+            const nextLink = document.querySelector('a[data-nav="next"]');
+            if (nextLink) (nextLink as HTMLAnchorElement).click();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

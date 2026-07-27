@@ -4,16 +4,19 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: '#0F0F0F',
-        surface: '#1A1A1A',
-        fg: '#E0E0E0',
-        accent: '#00D4FF',
-        'accent-secondary': '#00FF88',
-        border: '#2A2A2A',
-        muted: '#6B6B6B',
+        bg: '#0A1628',
+        'bg-elevated': '#0F1D32',
+        surface: '#152238',
+        fg: '#E8EDF5',
+        'fg-dim': '#8899B4',
+        accent: '#E8B86A',
+        'accent-secondary': '#60A5FA',
+        border: '#1E3050',
+        'border-subtle': '#162640',
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
+        'serif-display': ['Instrument Serif', 'serif'],
         mono: ['JetBrains Mono', 'ui-monospace', 'monospace'],
       },
     },

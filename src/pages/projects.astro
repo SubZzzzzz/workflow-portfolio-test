@@ -1,0 +1,110 @@
+---
+import WorkflowLayout from '../layouts/WorkflowLayout.astro';
+---
+
+<WorkflowLayout title="Projets" currentNode={3} pageName="Projects">
+  <section class="min-h-screen flex items-center justify-center px-6 py-32">
+    <div class="max-w-5xl w-full">
+      <!-- Header -->
+      <div class="mb-16">
+        <p class="font-mono text-sm text-accent tracking-widest uppercase mb-6">
+          Node 03 — Projets
+        </p>
+        <h1 class="text-5xl md:text-7xl text-fg mb-6 leading-tight">
+          Réalisations récentes
+        </h1>
+        <p class="text-lg text-fg-dim max-w-3xl">
+          Des workflows qui transforment des processus manuels en systèmes automatisés
+        </p>
+      </div>
+
+      <!-- Sous-nodes : Projets -->
+      <div class="space-y-6">
+        <div class="sub-node p-8 rounded-lg border border-border bg-surface hover:border-accent transition-all cursor-pointer group">
+          <div class="flex items-start justify-between mb-4">
+            <div class="font-mono text-xs text-fg-dim">Projet 01</div>
+            <div class="flex gap-2">
+              <span class="px-3 py-1 rounded-full bg-accent/10 text-accent text-xs">n8n</span>
+              <span class="px-3 py-1 rounded-full bg-accent-secondary/10 text-accent-secondary text-xs">IA</span>
+            </div>
+          </div>
+          <h3 class="font-serif-display text-3xl text-fg mb-3">Agent IA WhatsApp pour PME</h3>
+          <p class="text-fg-dim mb-4">
+            Création d'un agent conversationnel sur WhatsApp qui gère automatiquement les demandes clients, 
+            qualifie les leads et transfère les conversations complexes aux commerciaux.
+          </p>
+          <div class="flex items-center gap-6 text-sm text-fg-dim">
+            <span>⏱️ 3 semaines</span>
+            <span> -80% temps de traitement</span>
+            <span> 500+ conversations/mois</span>
+          </div>
+        </div>
+
+        <div class="sub-node p-8 rounded-lg border border-border bg-surface hover:border-accent transition-all cursor-pointer group">
+          <div class="flex items-start justify-between mb-4">
+            <div class="font-mono text-xs text-fg-dim">Projet 02</div>
+            <div class="flex gap-2">
+              <span class="px-3 py-1 rounded-full bg-accent/10 text-accent text-xs">Make</span>
+              <span class="px-3 py-1 rounded-full bg-accent-secondary/10 text-accent-secondary text-xs">API</span>
+            </div>
+          </div>
+          <h3 class="font-serif-display text-3xl text-fg mb-3">Synchronisation CRM ↔ ERP</h3>
+          <p class="text-fg-dim mb-4">
+            Workflow bidirectionnel entre HubSpot et un ERP custom, avec gestion des conflits, 
+            logs détaillés et alertes en temps réel.
+          </p>
+          <div class="flex items-center gap-6 text-sm text-fg-dim">
+            <span>⏱️ 2 semaines</span>
+            <span>🔄 10k+ syncs/jour</span>
+            <span>⚡ 99.9% uptime</span>
+          </div>
+        </div>
+
+        <div class="sub-node p-8 rounded-lg border border-border bg-surface hover:border-accent transition-all cursor-pointer group">
+          <div class="flex items-start justify-between mb-4">
+            <div class="font-mono text-xs text-fg-dim">Projet 03</div>
+            <div class="flex gap-2">
+              <span class="px-3 py-1 rounded-full bg-accent/10 text-accent text-xs">Python</span>
+              <span class="px-3 py-1 rounded-full bg-accent-secondary/10 text-accent-secondary text-xs">Discord</span>
+            </div>
+          </div>
+          <h3 class="font-serif-display text-3xl text-fg mb-3">Bot Discord de Monitoring</h3>
+          <p class="text-fg-dim mb-4">
+            Bot Discord qui surveille les métriques business (ventes, inscriptions, support) 
+            et alerte l'équipe avec des insights générés par IA.
+          </p>
+          <div class="flex items-center gap-6 text-sm text-fg-dim">
+            <span>⏱️ 1 semaine</span>
+            <span> +30% réactivité</span>
+            <span>🤖 50+ alertes/jour</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Navigation -->
+      <div class="mt-16 flex items-center justify-between">
+        <a
+          href="/services/"
+          data-nav="prev"
+          class="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-border text-fg hover:border-accent hover:text-accent transition-colors"
+        >
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+          </svg>
+          <span>Services</span>
+        </a>
+
+        <a
+          href="/contact/"
+          data-nav="next"
+          class="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-accent text-bg font-semibold hover:bg-accent/90 transition-colors"
+        >
+          <span>Me contacter</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+</WorkflowLayout>

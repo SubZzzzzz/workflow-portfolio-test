@@ -1,0 +1,72 @@
+---
+interface Props {
+  currentNode: number;
+  totalPages: number;
+}
+
+const { currentNode, totalPages } = Astro.props;
+const isFirst = currentNode === 1;
+const isLast = currentNode === totalPages;
+---
+
+<div class="fixed inset-y-0 left-0 right-0 z-50 pointer-events-none flex items-center justify-between px-4 md:px-8">
+  <!-- Flèche gauche -->
+  <button
+    class="nav-arrow pointer-events-auto group flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full border border-border bg-surface/80 backdrop-blur-sm transition-all duration-200 hover:border-accent hover:bg-accent/10 disabled:opacity-30 disabled:cursor-not-allowed"
+    disabled={isFirst}
+    data-action="prev"
+    aria-label="Node précédent"
+  >
+    <svg
+      class="w-6 h-6 text-fg group-hover:text-accent transition-colors"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+    </svg>
+  </button>
+
+  <!-- Flèche droite -->
+  <button
+    class="nav-arrow pointer-events-auto group flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full border border-border bg-surface/80 backdrop-blur-sm transition-all duration-200 hover:border-accent hover:bg-accent/10 disabled:opacity-30 disabled:cursor-not-allowed"
+    disabled={isLast}
+    data-action="next"
+    aria-label="Node suivant"
+  >
+    <svg
+      class="w-6 h-6 text-fg group-hover:text-accent transition-colors"
+      fill="none"
+      stroke="currentColor"
+      viewBox="0 0 24 24"
+    >
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+    </svg>
+  </button>
+</div>
+
+<style>
+  .nav-arrow {
+    position: fixed;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .nav-arrow:first-child {
+    left: 20px;
+  }
+
+  .nav-arrow:last-child {
+    right: 20px;
+  }
+
+  @media (min-width: 768px) {
+    .nav-arrow:first-child {
+      left: 40px;
+    }
+
+    .nav-arrow:last-child {
+      right: 40px;
+    }
+  }
+</style>

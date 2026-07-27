@@ -1,12 +1,58 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import WorkflowCanvas from '../components/WorkflowCanvas.astro';
-import Hero from '../components/Hero.astro';
+import WorkflowLayout from '../layouts/WorkflowLayout.astro';
 ---
 
-<Layout title="Workflow Portfolio Test">
-  <div class="relative z-10">
-    <Hero />
-    <WorkflowCanvas />
-  </div>
-</Layout>
+<WorkflowLayout title="Accueil" currentNode={1} pageName="Start">
+  <section class="min-h-screen flex items-center justify-center px-6 py-32">
+    <div class="max-w-5xl w-full">
+      <!-- Contenu principal -->
+      <div class="mb-16">
+        <p class="font-mono text-sm text-accent tracking-widest uppercase mb-6">
+          Développeur Freelance — Automatisation & IA
+        </p>
+        <h1 class="text-6xl md:text-8xl text-fg mb-8 leading-tight">
+          Achille Robbe
+        </h1>
+        <p class="text-xl md:text-2xl text-fg-dim max-w-3xl leading-relaxed">
+          Je construis des workflows intelligents qui automatisent vos processus métier. 
+          Des agents IA aux intégrations complexes, je connecte vos outils pour libérer votre temps.
+        </p>
+      </div>
+
+      <!-- Sous-nodes -->
+      <div class="grid md:grid-cols-3 gap-6 mt-20">
+        <div class="sub-node p-6 rounded-lg border border-border bg-surface hover:border-accent transition-colors cursor-pointer">
+          <div class="font-mono text-xs text-fg-dim mb-3">01</div>
+          <h3 class="font-serif-display text-2xl text-fg mb-2">Qui je suis</h3>
+          <p class="text-sm text-fg-dim">Développeur freelance spécialisé en automatisation</p>
+        </div>
+
+        <div class="sub-node p-6 rounded-lg border border-border bg-surface hover:border-accent transition-colors cursor-pointer">
+          <div class="font-mono text-xs text-fg-dim mb-3">02</div>
+          <h3 class="font-serif-display text-2xl text-fg mb-2">Ce que je fais</h3>
+          <p class="text-sm text-fg-dim">Workflows, agents IA, intégrations sur mesure</p>
+        </div>
+
+        <div class="sub-node p-6 rounded-lg border border-border bg-surface hover:border-accent transition-colors cursor-pointer">
+          <div class="font-mono text-xs text-fg-dim mb-3">03</div>
+          <h3 class="font-serif-display text-2xl text-fg mb-2">Pourquoi l'automatisation</h3>
+          <p class="text-sm text-fg-dim">Libérer du temps pour ce qui compte vraiment</p>
+        </div>
+      </div>
+
+      <!-- CTA Navigation -->
+      <div class="mt-16 flex items-center gap-4">
+        <a
+          href="/services/"
+          data-nav="next"
+          class="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-accent text-bg font-semibold hover:bg-accent/90 transition-colors"
+        >
+          <span>Découvrir mes services</span>
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+</WorkflowLayout>
