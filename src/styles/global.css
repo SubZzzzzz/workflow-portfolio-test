@@ -35,7 +35,7 @@ body {
   min-height: 100vh;
 }
 
-/* Fond organique — dégradé radial + courbes de workflow */
+/* Background style dashboard d'automation */
 body::before {
   content: '';
   position: fixed;
@@ -45,13 +45,18 @@ body::before {
   height: 100%;
   pointer-events: none;
   z-index: 0;
-  background:
-    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(15, 29, 50, 0.8) 0%, transparent 70%),
-    radial-gradient(ellipse 60% 50% at 20% 80%, rgba(30, 48, 80, 0.4) 0%, transparent 60%),
-    radial-gradient(ellipse 50% 40% at 80% 20%, rgba(30, 48, 80, 0.3) 0%, transparent 50%);
+  opacity: 0.08;
+  background-image: 
+    /* Grille subtile */
+    linear-gradient(rgba(30, 48, 80, 0.3) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(30, 48, 80, 0.3) 1px, transparent 1px),
+    /* Dots aux intersections */
+    radial-gradient(circle, rgba(30, 48, 80, 0.5) 1px, transparent 1px);
+  background-size: 80px 80px, 80px 80px, 80px 80px;
+  background-position: 0 0, 0 0, -1px -1px;
 }
 
-/* Courbes de workflow subtiles en SVG inline */
+/* Nodes fantômes en arrière-plan */
 body::after {
   content: '';
   position: fixed;
@@ -61,8 +66,8 @@ body::after {
   height: 100%;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.06;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' fill='none'%3E%3Cpath d='M100 200 C300 100, 400 400, 600 300 S800 200, 1100 350' stroke='%2360A5FA' stroke-width='1'/%3E%3Cpath d='M50 500 C200 450, 350 600, 550 500 S750 400, 1150 550' stroke='%23E8B86A' stroke-width='0.8'/%3E%3Cpath d='M200 700 C400 600, 500 750, 700 650 S900 550, 1100 700' stroke='%2360A5FA' stroke-width='0.6'/%3E%3C/svg%3E");
+  opacity: 0.05;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' fill='none'%3E%3C!-- Nodes fantômes --%3E%3Crect x='100' y='150' width='120' height='40' rx='4' stroke='%2360A5FA' stroke-width='1' fill='rgba(21, 34, 56, 0.5)'/%3E%3Crect x='350' y='100' width='100' height='36' rx='4' stroke='%2360A5FA' stroke-width='1' fill='rgba(21, 34, 56, 0.5)'/%3E%3Crect x='700' y='200' width='140' height='44' rx='4' stroke='%23E8B86A' stroke-width='1' fill='rgba(21, 34, 56, 0.5)'/%3E%3Crect x='950' y='120' width='110' height='38' rx='4' stroke='%2360A5FA' stroke-width='1' fill='rgba(21, 34, 56, 0.5)'/%3E%3Crect x='200' y='500' width='130' height='42' rx='4' stroke='%23E8B86A' stroke-width='1' fill='rgba(21, 34, 56, 0.5)'/%3E%3Crect x='500' y='600' width='115' height='40' rx='4' stroke='%2360A5FA' stroke-width='1' fill='rgba(21, 34, 56, 0.5)'/%3E%3Crect x='850' y='550' width='125' height='38' rx='4' stroke='%2360A5FA' stroke-width='1' fill='rgba(21, 34, 56, 0.5)'/%3E%3Crect x='1050' y='450' width='105' height='36' rx='4' stroke='%23E8B86A' stroke-width='1' fill='rgba(21, 34, 56, 0.5)'/%3E%3C!-- Connexions entre nodes --%3E%3Cpath d='M 220 170 C 260 140, 310 130, 350 118' stroke='%2360A5FA' stroke-width='1' opacity='0.6'/%3E%3Cpath d='M 450 118 C 520 140, 620 160, 700 178' stroke='%23E8B86A' stroke-width='1' opacity='0.6'/%3E%3Cpath d='M 840 190 C 880 170, 910 150, 950 138' stroke='%2360A5FA' stroke-width='1' opacity='0.6'/%3E%3Cpath d='M 330 520 C 380 540, 440 560, 500 580' stroke='%23E8B86A' stroke-width='1' opacity='0.6'/%3E%3Cpath d='M 615 610 C 680 600, 770 580, 850 568' stroke='%2360A5FA' stroke-width='1' opacity='0.6'/%3E%3Cpath d='M 975 560 C 1010 540, 1030 500, 1050 468' stroke='%23E8B86A' stroke-width='1' opacity='0.6'/%3E%3C!-- Ports sur les nodes --%3E%3Ccircle cx='104' cy='170' r='3' fill='%230A1628' stroke='%2360A5FA' stroke-width='1'/%3E%3Ccircle cx='216' cy='170' r='3' fill='%230A1628' stroke='%2360A5FA' stroke-width='1'/%3E%3Ccircle cx='354' cy='118' r='3' fill='%230A1628' stroke='%2360A5FA' stroke-width='1'/%3E%3Ccircle cx='446' cy='118' r='3' fill='%230A1628' stroke='%2360A5FA' stroke-width='1'/%3E%3Ccircle cx='704' cy='200' r='3' fill='%230A1628' stroke='%23E8B86A' stroke-width='1'/%3E%3Ccircle cx='836' cy='200' r='3' fill='%230A1628' stroke='%23E8B86A' stroke-width='1'/%3E%3C/svg%3E");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
