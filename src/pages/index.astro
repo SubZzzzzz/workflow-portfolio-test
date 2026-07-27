@@ -17,15 +17,15 @@ import WorkflowLayout from '../layouts/WorkflowLayout.astro';
         <div class="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-accent border-2 border-accent shadow-[0_0_12px_4px_rgba(232,184,106,0.4)] z-20"></div>
         
         <!-- Ligne de connexion vers le node suivant -->
-        <div class="absolute -right-3 top-1/2 -translate-y-1/2 z-10">
-          <svg width="120" height="80" class="overflow-visible" style="transform: translateX(12px);">
+        <div class="absolute right-0 top-1/2 -translate-y-1/2 z-10">
+          <svg width="300" height="80" class="overflow-visible">
             <path
-              d="M 0 0 C 40 -20, 80 20, 120 0"
+              d="M 0 40 C 100 40, 200 50, 300 65"
               fill="none"
               stroke="#E8B86A"
               stroke-width="2"
               opacity="0.6"
-              stroke-dasharray="4 4"
+              stroke-dasharray="6 4"
             />
           </svg>
         </div>
