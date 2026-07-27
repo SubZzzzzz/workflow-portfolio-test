@@ -93,11 +93,17 @@ Node 4: CONTACT
    - Animation : légère translation au hover
    - Désactivé sur le premier/dernier node
 
-2. **ProgressIndicator**
-   - Affiche "Node X/Y" ou dots de progression
-   - Position : en haut au centre ou en bas au centre
-   - Style : minimaliste, mono ou petit texte
-   - Animation : transition fluide lors du changement de node
+2. **WorkflowMinimap** (remplace ProgressIndicator)
+   - Visualisation horizontale des 4 nodes avec connexions
+   - 4 dots connectés par des lignes
+   - Node actif : couleur accent (ambre #E8B86A) + glow + scale 125%
+   - Nodes inactifs : opacité 40%, hover 70%
+   - Lignes entre nodes : accent/40% si node précédent actif, border sinon
+   - Clic sur un node : navigation directe vers la page
+   - Labels sous chaque dot (Start, Services, Projects, Contact)
+   - Position : fixed top-6, centré
+   - Style : pill rounded-full avec border + backdrop-blur
+   - Responsive : w-8/w-12 pour les connecteurs selon breakpoint
 
 3. **PageTransition**
    - Animation de slide horizontal entre les pages
@@ -131,12 +137,14 @@ Node 4: CONTACT
 
 ### Composants de Fond
 
-7. **WorkflowGrid**
-   - Grille SVG en arrière-plan
-   - Lignes horizontales et verticales fines
-   - Dots aux intersections (optionnel)
-   - Parallax léger au scroll (optionnel)
-   - Opacité très faible (5-10%)
+7. **Fond organique** (remplace WorkflowGrid)
+   - Dégradés radiaux multiples pour créer de la profondeur
+   - Centre légèrement éclairci : `radial-gradient(ellipse 80% 60% at 50% 40%, rgba(15, 29, 50, 0.8))`
+   - Second gradient en bas-gauche : `radial-gradient(ellipse 60% 50% at 20% 80%, rgba(30, 48, 80, 0.4))`
+   - Troisième gradient en haut-droite : `radial-gradient(ellipse 50% 40% at 80% 20%, rgba(30, 48, 80, 0.3))`
+   - Courbes de workflow SVG subtiles en background (opacity 0.06)
+   - 3 courbes de Bézier : une bleu, une ambre, une bleu clair
+   - Évoque des connexions sans être une grille répétitive
 
 8. **ConnectionLines**
    - Lignes SVG entre les nodes (si affichage multi-node)
@@ -276,7 +284,7 @@ Node 4: CONTACT
 
 1. Créer 4 pages Astro (index.astro, services.astro, projects.astro, contact.astro)
 2. Créer le composant NavigationArrows
-3. Créer le composant ProgressIndicator
+3. Créer le composant WorkflowMinimap
 4. Implémenter la navigation entre pages (JS pour changer de page sans reload)
 5. Ajouter la navigation clavier (flèches gauche/droite)
 6. Tester sur desktop
@@ -320,7 +328,7 @@ Node 4: CONTACT
 1. Implémenter la transition slide entre les pages
 2. Ajouter l'animation stagger sur l'apparition des sous-nodes
 3. Ajouter les animations hover sur les NodeCards
-4. Créer le composant WorkflowGrid (fond)
+4. Créer le fond organique (dégradés radiaux + courbes workflow)
 5. Créer le composant ConnectionLines (si applicable)
 6. Tester les performances (60fps)
 
