@@ -13,109 +13,95 @@ const pages = [
   { id: 4, label: 'Contact', href: '/contact/' },
 ];
 
-// Dimensions SVG
-const svgWidth = 480;
-const svgHeight = 52;
-const nodeWidth = 64;
-const nodeHeight = 24;
-const nodeY = 6;
-const portRadius = 3;
-const gapBetweenNodes = 12;
+// Dimensions SVG — plus grandes, plus respirées
+const svgWidth = 620;
+const svgHeight = 72;
+const nodeWidth = 96;
+const nodeHeight = 32;
+const portRadius = 4;
+const gapX = 56; // espacement horizontal entre nodes
+const startX = 30;
 
-// Calcul des positions X
-const totalNodesWidth = pages.length * nodeWidth + (pages.length - 1) * gapBetweenNodes;
-const startX = (svgWidth - totalNodesWidth) / 2;
+// Positions Y décalées pour un look organique (pas tous alignés)
+const nodeYPositions = [8, 18, 6, 22];
 
 function getNodeX(index: number) {
-  return startX + index * (nodeWidth + gapBetweenNodes);
+  return startX + index * (nodeWidth + gapX);
 }
 ---
 
-<nav class="fixed top-5 left-1/2 -translate-x-1/2 z-50" aria-label="Navigation workflow">
-  <div class="px-5 py-3 rounded-lg border border-border bg-surface/90 backdrop-blur-sm">
+<nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50" aria-label="Navigation workflow">
+  <div class="px-6 py-4 rounded-lg border border-border bg-surface/95 backdrop-blur-sm">
     <svg
       viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-      class="w-[280px] md:w-[420px] h-auto"
+      class="w-[320px] md:w-[520px] h-auto"
       aria-hidden="true"
     >
       <defs>
-        {/* Glow filter pour le node actif */}
-        <filter id="nodeGlow" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur stdDeviation="3" result="blur" />
-          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        <filter id="activeGlow" x="-30%" y="-30%" width="160%" height="160%">
+          <feGaussianBlur stdDeviation="4" result="blur" />
+          <feFlood flood-color="#E8B86A" flood-opacity="0.5" result="color" />
+          <feComposite in="color" in2="blur" operator="in" result="glowColor" />
+          <feMerge>
+            <feMergeNode in="glowColor" />
+            <feMergeNode in="SourceGraphic" />
+          </feMerge>
         </filter>
       </defs>
 
       {pages.map((page, index) => {
         const x = getNodeX(index);
+        const y = nodeYPositions[index];
         const isActive = page.id === currentPage;
         const isPast = page.id < currentPage;
+        const nodeCenterY = y + nodeHeight / 2;
 
-        // Connexion courbe vers le node suivant
-        const nextX = index < pages.length - 1 ? getNodeX(index + 1) : null;
+        // Node suivant (pour la connexion)
+        const nextIndex = index + 1;
+        const hasNext = nextIndex < pages.length;
+        const nextX = hasNext ? getNodeX(nextIndex) : null;
+        const nextY = hasNext ? nodeYPositions[nextIndex] : 0;
+        const nextCenterY = nextY + nodeHeight / 2;
 
         return (
           <g>
-            {/* Connexion courbe (dessinée avant le node pour passer derrière) */}
-            {nextX && (
-              <g>
-                {/* Port out du node courant */}
-                <line
-                  x1={x + nodeWidth}
-                  y1={nodeY + nodeHeight / 2}
-                  x2={x + nodeWidth + 6}
-                  y2={nodeY + nodeHeight / 2}
-                  stroke={isPast ? '#E8B86A' : '#1E3050'}
-                  stroke-width="1"
-                  opacity="0.6"
-                />
-                {/* Courbe de Bézier S */}
-                <path
-                  d={`M ${x + nodeWidth + 6} ${nodeY + nodeHeight / 2 - 4}
-                      C ${x + nodeWidth + 20} ${nodeY - 2},
-                        ${nextX - 20} ${nodeY + nodeHeight + 2},
-                        ${nextX - 6} ${nodeY + nodeHeight / 2 + 4}`}
-                  fill="none"
-                  stroke={isPast ? '#E8B86A' : '#1E3050'}
-                  stroke-width="1.2"
-                  opacity="0.5"
-                />
-                {/* Port in du node suivant */}
-                <line
-                  x1={nextX - 6}
-                  y1={nodeY + nodeHeight / 2}
-                  x2={nextX}
-                  y2={nodeY + nodeHeight / 2}
-                  stroke={isPast ? '#E8B86A' : '#1E3050'}
-                  stroke-width="1"
-                  opacity="0.6"
-                />
-              </g>
+            {/* Connexion courbe vers le node suivant */}
+            {hasNext && nextX !== null && (
+              <path
+                d={`M ${x + nodeWidth + portRadius} ${nodeCenterY}
+                    C ${x + nodeWidth + portRadius + 20} ${nodeCenterY - 8},
+                      ${nextX - portRadius - 20} ${nextCenterY + 8},
+                      ${nextX - portRadius} ${nextCenterY}`}
+                fill="none"
+                stroke={isPast ? '#E8B86A' : '#1E3050'}
+                stroke-width={isPast ? '1.5' : '1'}
+                opacity={isPast ? '0.7' : '0.4'}
+              />
             )}
 
-            {/* Node rectangle */}
+            {/* Node cliquable */}
             <a href={page.href} class="cursor-pointer" aria-label={`Aller à ${page.label}`}>
+              {/* Rectangle du node */}
               <rect
                 x={x}
-                y={nodeY}
+                y={y}
                 width={nodeWidth}
                 height={nodeHeight}
-                rx="4"
-                fill={isActive ? 'rgba(232, 184, 106, 0.08)' : 'transparent'}
+                rx="5"
+                fill={isActive ? 'rgba(232, 184, 106, 0.15)' : 'rgba(21, 34, 56, 0.6)'}
                 stroke={isActive ? '#E8B86A' : '#1E3050'}
-                stroke-width={isActive ? '1.5' : '1'}
-                filter={isActive ? 'url(#nodeGlow)' : undefined}
-                class="transition-all duration-200 hover:stroke-[#E8B86A]/60"
+                stroke-width={isActive ? '2' : '1'}
+                filter={isActive ? 'url(#activeGlow)' : undefined}
               />
 
-              {/* Label dans le node */}
+              {/* Label */}
               <text
                 x={x + nodeWidth / 2}
-                y={nodeY + nodeHeight / 2 + 1}
+                y={nodeCenterY + 1}
                 text-anchor="middle"
                 dominant-baseline="middle"
                 fill={isActive ? '#E8B86A' : '#8899B4'}
-                font-size="8"
+                font-size="10"
                 font-family="JetBrains Mono, monospace"
                 font-weight={isActive ? '500' : '400'}
                 class="pointer-events-none select-none"
@@ -125,30 +111,30 @@ function getNodeX(index: number) {
 
               {/* Port input (gauche) */}
               <circle
-                cx={x + 1}
-                cy={nodeY + nodeHeight / 2}
+                cx={x + 2}
+                cy={nodeCenterY}
                 r={portRadius}
                 fill={isPast || isActive ? '#E8B86A' : '#0A1628'}
-                stroke={isPast || isActive ? '#E8B86A' : '#1E3050'}
-                stroke-width="1"
+                stroke={isPast || isActive ? '#E8B86A' : '#2A4060'}
+                stroke-width="1.5"
               />
 
               {/* Port output (droite) */}
               <circle
-                cx={x + nodeWidth - 1}
-                cy={nodeY + nodeHeight / 2}
+                cx={x + nodeWidth - 2}
+                cy={nodeCenterY}
                 r={portRadius}
                 fill={isPast || isActive ? '#E8B86A' : '#0A1628'}
-                stroke={isPast || isActive ? '#E8B86A' : '#1E3050'}
-                stroke-width="1"
+                stroke={isPast || isActive ? '#E8B86A' : '#2A4060'}
+                stroke-width="1.5"
               />
 
-              {/* Zone de clic invisible plus large */}
+              {/* Zone de clic élargie */}
               <rect
-                x={x - 4}
-                y={nodeY - 4}
-                width={nodeWidth + 8}
-                height={nodeHeight + 8}
+                x={x - 6}
+                y={y - 6}
+                width={nodeWidth + 12}
+                height={nodeHeight + 12}
                 fill="transparent"
               />
             </a>
