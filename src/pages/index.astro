@@ -1,5 +1,6 @@
 ---
 import WorkflowLayout from '../layouts/WorkflowLayout.astro';
+import NodePort from '../components/NodePort.astro';
 ---
 
 <WorkflowLayout title="Accueil" currentPage={1}>
@@ -7,6 +8,9 @@ import WorkflowLayout from '../layouts/WorkflowLayout.astro';
     <!-- Node central -->
     <div class="relative max-w-6xl w-full px-6">
         <div class="relative border-2 border-border bg-surface/50 backdrop-blur-sm rounded-lg p-12 md:p-16">
+          
+          <!-- Port de sortie (vers Services en bas) -->
+          <NodePort direction="bottom" status="active" size="lg" />
           
           <!-- Contenu du node -->
           <div class="relative z-10">

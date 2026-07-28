@@ -1,0 +1,32 @@
+---
+interface Props {
+  direction: 'top' | 'bottom' | 'left' | 'right';
+  status?: 'active' | 'done' | 'idle';
+  size?: 'md' | 'lg';
+}
+
+const { direction, status = 'idle', size = 'md' } = Astro.props;
+
+const portSize = size === 'lg' ? 'w-8 h-8' : 'w-6 h-6';
+const dotSize = size === 'lg' ? 'w-3 h-3' : 'w-2 h-2';
+
+const colors = {
+  active: { border: 'border-orange-500', bg: 'bg-orange-500', glow: 'shadow-orange-500/50' },
+  done: { border: 'border-green-500', bg: 'bg-green-500', glow: 'shadow-green-500/50' },
+  idle: { border: 'border-border', bg: 'bg-bg', glow: '' },
+};
+
+const color = colors[status];
+
+// Position selon la direction
+const position = {
+  top: 'top-0 left-1/2 -translate-x-1/2 -translate-y-1/2',
+  bottom: 'bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2',
+  left: 'left-0 top-1/2 -translate-y-1/2 -translate-x-1/2',
+  right: 'right-0 top-1/2 -translate-y-1/2 translate-x-1/2',
+};
+---
+
+<div class={`absolute ${position[direction]} ${portSize} rounded-full border-2 ${color.border} bg-surface flex items-center justify-center ${status !== 'idle' ? `shadow-lg ${color.glow}` : ''} z-20`}>
+  <div class={`${dotSize} rounded-full ${color.bg}`}></div>
+</div>
