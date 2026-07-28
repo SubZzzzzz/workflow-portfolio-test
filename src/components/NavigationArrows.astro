@@ -9,7 +9,7 @@ const isFirst = currentNode === 1;
 const isLast = currentNode === totalPages;
 ---
 
-<div class="fixed inset-y-0 left-0 right-0 z-50 pointer-events-none flex items-center justify-between px-4 md:px-8">
+<div class="fixed top-1/2 left-0 right-0 z-50 -translate-y-1/2 pointer-events-none flex items-center justify-between px-4 md:px-8">
   <!-- Flèche gauche -->
   <button
     class="nav-arrow pointer-events-auto group flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full border border-border bg-surface/80 backdrop-blur-sm transition-all duration-200 hover:border-accent hover:bg-accent/10 disabled:opacity-30 disabled:cursor-not-allowed"
@@ -47,26 +47,16 @@ const isLast = currentNode === totalPages;
 
 <style>
   .nav-arrow {
-    position: fixed;
-    top: 50%;
-    transform: translateY(-50%);
+    /* Positioning handled by parent flex container */
   }
 
-  .nav-arrow:first-child {
-    left: 20px;
-  }
-
-  .nav-arrow:last-child {
-    right: 20px;
-  }
-
-  @media (min-width: 768px) {
+  @media (max-width: 767px) {
     .nav-arrow:first-child {
-      left: 40px;
+      margin-left: 4px;
     }
 
     .nav-arrow:last-child {
-      right: 40px;
+      margin-right: 4px;
     }
   }
 </style>
