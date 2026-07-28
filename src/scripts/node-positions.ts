@@ -12,10 +12,10 @@ export interface Connection {
 
 // Positions des centres des nodes (layout zigzag)
 export const NODE_POSITIONS: Record<string, NodePosition> = {
-  '/': { x: 50, y: 30 },           // Start : centre-haut
-  '/services/': { x: 25, y: 50 },  // Services : gauche-centre
-  '/projects/': { x: 75, y: 50 },  // Projects : droite-centre
-  '/contact/': { x: 50, y: 70 },   // Contact : centre-bas
+  '/': { x: 50, y: 35 },
+  '/services/': { x: 30, y: 50 },
+  '/projects/': { x: 70, y: 50 },
+  '/contact/': { x: 50, y: 65 },
 };
 
 // Connexions entre les nodes

@@ -1,13 +1,13 @@
-// Transition Engine — Signal animé + glissement synchronisé
-// Le signal vert se propage le long du lien pendant que la page glisse
+// Transition Engine — Effet scroll continu + signal synchronisé
 
 import { preloadAdjacentPages, getCachedPage } from './page-cache';
 import { NODE_POSITIONS, getSlideDirection, type SlideDirection } from './node-positions';
+import { getPortPosition, getNodePositionPx, refreshLines } from './workflow-lines';
 
 const COLOR_SIGNAL = '#F97316';
 const COLOR_SIGNAL_END = '#22C55E';
-const COLOR_CABLE = '#1E3050';
 const TRANSITION_DURATION = 1200;
+const PAGE_ORDER = ['/', '/services/', '/projects/', '/contact/'];
 
 let isTransitioning = false;
 
@@ -26,130 +26,115 @@ function extractMain(html: string): string {
   return main ? main.innerHTML : '';
 }
 
-interface SignalOverlayElements {
+interface SignalElements {
   svg: SVGSVGElement;
-  cable: SVGLineElement;
   signalLine: SVGLineElement;
   signalHead: SVGCircleElement;
   pathLength: number;
+  fromX: number;
+  fromY: number;
+  toX: number;
+  toY: number;
 }
 
-function createSignalOverlay(fromPath: string, toPath: string): SignalOverlayElements {
-  const from = NODE_POSITIONS[fromPath];
-  const to = NODE_POSITIONS[toPath];
+function createSignalOverlay(fromPath: string, toPath: string): SignalElements | null {
+  const fromIdx = PAGE_ORDER.indexOf(fromPath);
+  const toIdx = PAGE_ORDER.indexOf(toPath);
+  const navType = toIdx > fromIdx ? 'next' : 'prev';
+  const portEl = document.querySelector(`a[data-nav="${navType}"]`);
+
+  let startX: number, startY: number;
+  if (portEl) {
+    const rect = portEl.getBoundingClientRect();
+    startX = rect.left + rect.width / 2;
+    startY = rect.top + rect.height / 2;
+  } else {
+    const fromPos = getNodePositionPx(fromPath);
+    if (!fromPos) return null;
+    startX = fromPos.x;
+    startY = fromPos.y;
+  }
+
+  const toPos = getNodePositionPx(toPath);
+  if (!toPos) return null;
+  const endX = toPos.x;
+  const endY = toPos.y;
+
+  const w = window.innerWidth;
+  const h = window.innerHeight;
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  svg.setAttribute('viewBox', '0 0 100 100');
-  svg.setAttribute('preserveAspectRatio', 'none');
+  svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
   svg.style.cssText = 'position:fixed;inset:0;z-index:200;pointer-events:none;width:100vw;height:100vh;';
 
   const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
   defs.innerHTML = `
-    <filter id="sigGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="1.5" result="blur" />
-      <feFlood flood-color="${COLOR_SIGNAL}" flood-opacity="0.7" result="color" />
-      <feComposite in="color" in2="blur" operator="in" result="glowColor" />
-      <feMerge>
-        <feMergeNode in="glowColor" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
+    <filter id="sg" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feFlood flood-color="${COLOR_SIGNAL}" flood-opacity="0.8" result="color" />
+      <feComposite in="color" in2="blur" operator="in" result="g" />
+      <feMerge><feMergeNode in="g" /><feMergeNode in="SourceGraphic" /></feMerge>
     </filter>
-    <filter id="sigGlowGreen" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="1.5" result="blur" />
-      <feFlood flood-color="${COLOR_SIGNAL_END}" flood-opacity="0.7" result="color" />
-      <feComposite in="color" in2="blur" operator="in" result="glowColor" />
-      <feMerge>
-        <feMergeNode in="glowColor" />
-        <feMergeNode in="SourceGraphic" />
-      </feMerge>
+    <filter id="sgg" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="4" result="blur" />
+      <feFlood flood-color="${COLOR_SIGNAL_END}" flood-opacity="0.8" result="color" />
+      <feComposite in="color" in2="blur" operator="in" result="g" />
+      <feMerge><feMergeNode in="g" /><feMergeNode in="SourceGraphic" /></feMerge>
     </filter>
   `;
   svg.appendChild(defs);
 
-  const cable = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-  cable.setAttribute('x1', `${from.x}`);
-  cable.setAttribute('y1', `${from.y}`);
-  cable.setAttribute('x2', `${to.x}`);
-  cable.setAttribute('y2', `${to.y}`);
-  cable.setAttribute('stroke', COLOR_CABLE);
-  cable.setAttribute('stroke-width', '0.15');
-  cable.setAttribute('opacity', '0.5');
-  svg.appendChild(cable);
-
-  const dx = to.x - from.x;
-  const dy = to.y - from.y;
+  const dx = endX - startX;
+  const dy = endY - startY;
   const pathLength = Math.sqrt(dx * dx + dy * dy);
 
   const signalLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-  signalLine.setAttribute('x1', `${from.x}`);
-  signalLine.setAttribute('y1', `${from.y}`);
-  signalLine.setAttribute('x2', `${to.x}`);
-  signalLine.setAttribute('y2', `${to.y}`);
+  signalLine.setAttribute('x1', `${startX}`);
+  signalLine.setAttribute('y1', `${startY}`);
+  signalLine.setAttribute('x2', `${endX}`);
+  signalLine.setAttribute('y2', `${endY}`);
   signalLine.setAttribute('stroke', COLOR_SIGNAL);
-  signalLine.setAttribute('stroke-width', '0.35');
+  signalLine.setAttribute('stroke-width', '3');
   signalLine.setAttribute('stroke-dasharray', `${pathLength}`);
   signalLine.setAttribute('stroke-dashoffset', `${pathLength}`);
-  signalLine.setAttribute('filter', 'url(#sigGlow)');
+  signalLine.setAttribute('filter', 'url(#sg)');
+  signalLine.setAttribute('stroke-linecap', 'round');
   svg.appendChild(signalLine);
 
   const signalHead = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-  signalHead.setAttribute('cx', `${from.x}`);
-  signalHead.setAttribute('cy', `${from.y}`);
-  signalHead.setAttribute('r', '0.8');
+  signalHead.setAttribute('cx', `${startX}`);
+  signalHead.setAttribute('cy', `${startY}`);
+  signalHead.setAttribute('r', '8');
   signalHead.setAttribute('fill', COLOR_SIGNAL);
-  signalHead.setAttribute('filter', 'url(#sigGlow)');
+  signalHead.setAttribute('filter', 'url(#sg)');
   signalHead.setAttribute('opacity', '0');
   svg.appendChild(signalHead);
 
-  return { svg, cable, signalLine, signalHead, pathLength };
+  return { svg, signalLine, signalHead, pathLength, fromX: startX, fromY: startY, toX: endX, toY: endY };
 }
 
-function updateSignal(elements: SignalOverlayElements, progress: number, fromPath: string, toPath: string): void {
-  const { signalLine, signalHead, pathLength } = elements;
-  const from = NODE_POSITIONS[fromPath];
-  const to = NODE_POSITIONS[toPath];
-
-  signalLine.setAttribute('stroke-dashoffset', `${pathLength * (1 - progress)}`);
+function updateSignal(el: SignalElements, progress: number): void {
+  el.signalLine.setAttribute('stroke-dashoffset', `${el.pathLength * (1 - progress)}`);
 
   const isGreen = progress > 0.85;
   const color = isGreen ? COLOR_SIGNAL_END : COLOR_SIGNAL;
-  const filter = isGreen ? 'url(#sigGlowGreen)' : 'url(#sigGlow)';
-  signalLine.setAttribute('stroke', color);
-  signalLine.setAttribute('filter', filter);
+  const filter = isGreen ? 'url(#sgg)' : 'url(#sg)';
+  el.signalLine.setAttribute('stroke', color);
+  el.signalLine.setAttribute('filter', filter);
 
-  const cx = from.x + (to.x - from.x) * progress;
-  const cy = from.y + (to.y - from.y) * progress;
-  signalHead.setAttribute('cx', `${cx}`);
-  signalHead.setAttribute('cy', `${cy}`);
-  signalHead.setAttribute('fill', color);
-  signalHead.setAttribute('filter', filter);
+  const cx = el.fromX + (el.toX - el.fromX) * progress;
+  const cy = el.fromY + (el.toY - el.fromY) * progress;
+  el.signalHead.setAttribute('cx', `${cx}`);
+  el.signalHead.setAttribute('cy', `${cy}`);
+  el.signalHead.setAttribute('fill', color);
+  el.signalHead.setAttribute('filter', filter);
 
   if (progress < 0.05) {
-    signalHead.setAttribute('opacity', `${progress * 20}`);
+    el.signalHead.setAttribute('opacity', `${progress * 20}`);
   } else if (progress > 0.95) {
-    signalHead.setAttribute('opacity', `${(1 - progress) * 20}`);
+    el.signalHead.setAttribute('opacity', `${(1 - progress) * 20}`);
   } else {
-    signalHead.setAttribute('opacity', '1');
-  }
-}
-
-function positionPage(el: HTMLElement, direction: SlideDirection | 'none', progress: number): void {
-  const p = progress * 100;
-  switch (direction) {
-    case 'up':    el.style.transform = `translateY(${-p}%)`; break;
-    case 'down':  el.style.transform = `translateY(${p}%)`; break;
-    case 'left':  el.style.transform = `translateX(${-p}%)`; break;
-    case 'right': el.style.transform = `translateX(${p}%)`; break;
-    case 'none':  el.style.transform = 'none'; break;
-  }
-}
-
-function getOppositeDirection(dir: SlideDirection): SlideDirection {
-  switch (dir) {
-    case 'up': return 'down';
-    case 'down': return 'up';
-    case 'left': return 'right';
-    case 'right': return 'left';
+    el.signalHead.setAttribute('opacity', '1');
   }
 }
 
@@ -169,65 +154,105 @@ async function navigateTo(url: string): Promise<void> {
 
     const newMainHTML = extractMain(html);
     const slideDirection = getSlideDirection(currentPath, url);
-    const nextSlideDir = getOppositeDirection(slideDirection);
-
-    const signalOverlay = createSignalOverlay(currentPath, url);
-    document.body.appendChild(signalOverlay.svg);
+    const isVertical = slideDirection === 'up' || slideDirection === 'down';
 
     const currentMain = document.querySelector('main') as HTMLElement;
     if (!currentMain) return;
 
-    const nextMain = document.createElement('main');
-    nextMain.className = currentMain.className;
-    nextMain.innerHTML = newMainHTML;
-    nextMain.style.cssText = `
-      position: fixed;
-      inset: 0;
-      z-index: 50;
-      overflow-y: auto;
-      will-change: transform;
-    `;
+    // Wrapper fixed avec overflow hidden
+    const wrapper = document.createElement('div');
+    wrapper.style.cssText = 'position:fixed;inset:0;z-index:100;overflow:hidden;';
 
-    positionPage(nextMain, nextSlideDir, 1);
-    document.body.appendChild(nextMain);
+    // Container interne qui contient les 2 pages côte à côte
+    const inner = document.createElement('div');
+    inner.style.willChange = 'transform';
 
-    currentMain.style.cssText = `
-      position: fixed;
-      inset: 0;
-      z-index: 40;
-      overflow-y: auto;
-      will-change: transform;
-    `;
-    positionPage(currentMain, 'none', 0);
+    if (isVertical) {
+      inner.style.cssText += 'position:absolute;top:0;left:0;width:100%;height:200vh;';
+    } else {
+      inner.style.cssText += 'position:absolute;top:0;left:0;width:200vw;height:100%;';
+    }
 
+    // Clone de la page actuelle
+    const currentClone = document.createElement('main');
+    currentClone.className = currentMain.className;
+    currentClone.innerHTML = currentMain.innerHTML;
+    if (isVertical) {
+      currentClone.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100vh;overflow-y:auto;';
+    } else {
+      currentClone.style.cssText = 'position:absolute;top:0;left:0;width:100vw;height:100%;overflow-x:auto;';
+    }
+
+    // Page suivante positionnée juste après
+    const nextMainEl = document.createElement('main');
+    nextMainEl.className = currentMain.className;
+    nextMainEl.innerHTML = newMainHTML;
+    if (isVertical) {
+      const topPos = slideDirection === 'up' ? '100vh' : '-100vh';
+      nextMainEl.style.cssText = `position:absolute;top:${topPos};left:0;width:100%;height:100vh;overflow-y:auto;`;
+    } else {
+      const leftPos = slideDirection === 'left' ? '100vw' : '-100vw';
+      nextMainEl.style.cssText = `position:absolute;top:0;left:${leftPos};width:100vw;height:100%;overflow-x:auto;`;
+    }
+
+    inner.appendChild(currentClone);
+    inner.appendChild(nextMainEl);
+    wrapper.appendChild(inner);
+
+    // Signal overlay
+    const signal = createSignalOverlay(currentPath, url);
+
+    // Cacher le main original
+    currentMain.style.visibility = 'hidden';
+
+    // Ajouter au DOM
+    document.body.appendChild(wrapper);
+    if (signal) document.body.appendChild(signal.svg);
+
+    // Animation : scroll continu + signal synchronisé
     const startTime = performance.now();
 
     await new Promise<void>((resolve) => {
-      function animate(currentTime: number) {
-        const elapsed = currentTime - startTime;
-        const rawProgress = Math.min(elapsed / TRANSITION_DURATION, 1);
-        const easedProgress = easeInOutCubic(rawProgress);
+      function frame(now: number) {
+        const elapsed = now - startTime;
+        const raw = Math.min(elapsed / TRANSITION_DURATION, 1);
+        const eased = easeInOutCubic(raw);
 
-        positionPage(currentMain, slideDirection, easedProgress);
-        positionPage(nextMain, nextSlideDir, 1 - easedProgress);
-        updateSignal(signalOverlay, easedProgress, currentPath, url);
+        // Scroll continu du container
+        if (isVertical) {
+          const offset = eased * window.innerHeight;
+          inner.style.transform = `translateY(${slideDirection === 'up' ? -offset : offset}px)`;
+        } else {
+          const offset = eased * window.innerWidth;
+          inner.style.transform = `translateX(${slideDirection === 'left' ? -offset : offset}px)`;
+        }
 
-        if (rawProgress < 1) {
-          requestAnimationFrame(animate);
+        // Signal synchronisé
+        if (signal) updateSignal(signal, eased);
+
+        if (raw < 1) {
+          requestAnimationFrame(frame);
         } else {
           resolve();
         }
       }
-      requestAnimationFrame(animate);
+      requestAnimationFrame(frame);
     });
 
-    currentMain.remove();
-    signalOverlay.svg.remove();
-    nextMain.style.cssText = 'position: relative; z-index: 10;';
+    // Finaliser : remplacer le contenu du main original
+    currentMain.innerHTML = newMainHTML;
+    currentMain.style.visibility = '';
+    currentMain.style.cssText = 'position:relative;z-index:10;';
 
+    // Cleanup
+    wrapper.remove();
+    if (signal) signal.svg.remove();
+
+    // URL
     history.pushState({ path: url }, '', url);
 
-    nextMain.querySelectorAll('script').forEach((oldScript) => {
+    // Ré-exécuter les scripts de la nouvelle page
+    currentMain.querySelectorAll('script').forEach((oldScript) => {
       const newScript = document.createElement('script');
       if (oldScript instanceof HTMLScriptElement && oldScript.src) {
         newScript.src = oldScript.src;
@@ -237,6 +262,10 @@ async function navigateTo(url: string): Promise<void> {
       oldScript.parentNode?.replaceChild(newScript, oldScript);
     });
 
+    // Rafraîchir les liens SVG
+    refreshLines();
+
+    // Pré-charger les pages adjacentes
     preloadAdjacentPages(url);
 
   } catch (err) {

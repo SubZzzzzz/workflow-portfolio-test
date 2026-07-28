@@ -1,0 +1,11 @@
+{"message":"connected.","label":"vite","level":"info"}
+{"message":"Generated 1ms","label":"types","level":"info"}
+{"message":"connected.","label":"vite","level":"info"}
+{"message":"Re-optimizing dependencies because vite config has changed","label":"vite","level":"info"}
+{"message":" astro  v7.1.4 ready in 3327 ms\n┃ Local    http://localhost:4321/\n┃ Network  use --host to expose","label":"SKIP_FORMAT","level":"info"}
+{"message":"watching for file changes...","label":null,"level":"info"}
+{"message":"[200] / 132ms","label":null,"level":"info"}
+{"message":"[200] / 97ms","label":null,"level":"info"}
+{"message":"[200] /services/ 100ms","label":null,"level":"info"}
+{"message":"[200] /projects/ 93ms","label":null,"level":"info"}
+{"message":"[200] /contact/ 78ms","label":null,"level":"info"}
