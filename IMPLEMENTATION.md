@@ -162,20 +162,54 @@ Node 4: CONTACT
 
 ## Animations & Interactions
 
-### Transitions de Page
+### Animation Workflow entre Pages (NOUVEAU — remplace les transitions simples)
 
-**Slide Horizontal :**
-- Direction : selon le sens de navigation (← ou →)
-- Page sortante : translateX(-100%) ou translateX(100%)
-- Page entrante : translateX(0)
-- Durée : 500ms
-- Easing : cubic-bezier(0.4, 0, 0.2, 1)
-- Overlay : opacité 0→0.3→0 pendant la transition
+**Principe :** Au lieu d'une transition de page classique, la navigation entre nodes déclenche une animation de "signal" qui voyage le long du lien de connexion, comme une impulsion électrique dans un workflow.
 
-**Alternative : Fade + Scale**
-- Page sortante : opacity 0 + scale(0.95)
-- Page entrante : opacity 1 + scale(1)
-- Plus doux, moins "app-like"
+**Séquence d'animation (clic sur flèche →) :**
+
+1. **Activation du connecteur de départ** (0ms)
+   - Le connecteur droit du node courant (orange `#D97706`) change en vert (`#10B981` ou `#22C55E`)
+   - Animation : transition de couleur, durée 200ms
+   - Le connecteur reçoit un léger glow vert
+
+2. **Propagation du signal le long du lien** (200ms → 1200ms)
+   - Le lien SVG (actuellement gris `#4A5568` en pointillés) s'allume progressivement en vert
+   - Technique : utiliser `stroke-dasharray` + `stroke-dashoffset` animé, ou un gradient qui se déplace
+   - Le vert "avance" le long de la courbe de Bézier, suivant le path
+   - Durée totale de la propagation : ~1000ms
+   - Le reste du lien reste gris jusqu'à ce que le signal l'atteigne
+
+3. **Activation du connecteur d'arrivée** (1200ms)
+   - Quand le signal vert atteint le connecteur gauche du node suivant, celui-ci s'allume en vert
+   - Transition de couleur : gris/transparent → vert, durée 200ms
+   - Glow vert sur le connecteur d'arrivée
+
+4. **Reset du connecteur de départ** (1400ms)
+   - Le connecteur droit du node courant repasse en orange (`#D97706`)
+   - Le glow vert disparaît
+   - Transition de couleur, durée 200ms
+
+5. **Transition de page** (1400ms → 1900ms)
+   - Une fois l'animation workflow terminée, la transition de page classique se déclenche
+   - Slide horizontal OU fade + scale (à décider)
+   - Durée : 500ms
+
+**Séquence inverse (clic sur flèche ←) :**
+- Mêmes étapes mais dans l'autre sens
+- Le signal part du connecteur gauche, voyage vers le connecteur droit du node précédent
+- Les couleurs et timings sont identiques
+
+**Implementation technique :**
+- Utiliser GSAP + ScrollTrigger ou une timeline custom
+- Le path SVG du lien doit être animable via `stroke-dashoffset`
+- Chaque lien a deux "couches" : la couche grise (base) et la couche verte (signal)
+- La couche verte est masquée par défaut et révélée progressivement
+- Les connecteurs ont des classes CSS pour les états : `.connector-idle` (orange), `.connector-active` (vert), `.connector-traveling` (vert avec glow)
+
+**Fallback :**
+- Si `prefers-reduced-motion` : skip l'animation workflow, transition de page directe
+- Si JS désactivé : navigation classique entre pages
 
 ### Apparition des Sous-Nodes
 
@@ -321,18 +355,46 @@ Node 4: CONTACT
 
 ---
 
-### Phase 4 : Transitions & Animations
+### Phase 4 : Animations Workflow entre Pages (NOUVEAU)
 
-**Objectif :** Ajouter les animations de transition et d'apparition
+**Objectif :** Implémenter l'animation de signal qui voyage le long des liens lors de la navigation
 
-1. Implémenter la transition slide entre les pages
-2. Ajouter l'animation stagger sur l'apparition des sous-nodes
-3. Ajouter les animations hover sur les NodeCards
-4. Créer le fond organique (dégradés radiaux + courbes workflow)
-5. Créer le composant ConnectionLines (si applicable)
-6. Tester les performances (60fps)
+1. **Préparation des liens SVG**
+   - Chaque lien a deux paths superposés : base (gris) + signal (vert)
+   - Le path signal est masqué via `stroke-dashoffset` = longueur totale du path
+   - Calculer la longueur de chaque path via `getTotalLength()` en JS
 
-**Livrable :** Site animé avec transitions fluides
+2. **Animation du connecteur de départ**
+   - Au clic sur flèche, ajouter la classe `.connector-traveling` au connecteur source
+   - Transition CSS : couleur orange → vert + glow vert
+   - Durée : 200ms
+
+3. **Propagation du signal le long du lien**
+   - Animer `stroke-dashoffset` du path signal de la longueur totale → 0
+   - Durée : ~1000ms (ajustable selon la longueur du lien)
+   - Easing : linear ou ease-in-out pour un mouvement fluide
+   - Utiliser GSAP Timeline ou CSS `@keyframes`
+
+4. **Activation du connecteur d'arrivée**
+   - Callback à la fin de l'animation du lien
+   - Ajouter la classe `.connector-active` au connecteur cible
+   - Transition : apparition en vert + glow
+   - Durée : 200ms
+
+5. **Reset et transition de page**
+   - Après 200ms, le connecteur de départ repasse en orange
+   - Déclencher la transition de page (slide ou fade)
+   - Durée : 500ms
+
+6. **Gestion de la navigation inverse (←)**
+   - Mêmes animations mais direction inversée
+   - Le signal part du connecteur gauche vers le connecteur droit du node précédent
+
+7. **Fallback et accessibilité**
+   - Respecter `prefers-reduced-motion` : skip l'animation, transition directe
+   - Navigation clavier fonctionnelle même sans animation
+
+**Livrable :** Animation workflow complète, fluide à 60fps, avec fallback accessible
 
 ---
 
@@ -402,16 +464,26 @@ Node 4: CONTACT
 
 ## Points de Décision à Valider
 
-### À décider avant de commencer
+### Décisions déjà prises
 
-1. **Couleur de fond principale** : noir, bleu nuit, vert foncé, autre ?
-2. **Couleur d'accent** : cyan, vert, orange, autre ?
-3. **Typographie titres** : serif ou sans-serif ? Quelle police ?
-4. **Style de transition** : slide horizontal ou fade+scale ?
-5. **Sous-nodes** : modal ou expansion inline ?
-6. **Fond animé** : grille statique, grille animée, ou particules ?
-7. **Navigation mobile** : swipe uniquement ou aussi boutons tactiles ?
-8. **Sons** : ajouter des sons sur les interactions ? (avec toggle)
+1. **Couleur de fond principale** : bleu nuit profond (`#0A1628`)
+2. **Couleur d'accent principale** : ambre doré (`#E8B86A`)
+3. **Couleur des connecteurs** : orange (`#D97706`)
+4. **Couleur des liens** : gris éteint (`#4A5568`)
+5. **Couleur du signal d'animation** : vert (`#10B981` ou `#22C55E`)
+6. **Typographie titres** : Instrument Serif (serif display)
+7. **Typographie corps** : Inter (sans-serif)
+8. **Typographie labels** : JetBrains Mono (mono)
+9. **Style de chaque page** : node géant central avec connecteurs gauche/droite
+10. **Fond** : dashboard d'automation (grille subtile + nodes fantômes)
+11. **Minimap** : nodes style n8n avec connexions Bézier
+
+### Reste à décider
+
+1. **Style de transition de page** : slide horizontal ou fade+scale ? (après l'animation workflow)
+2. **Sous-nodes** : modal ou expansion inline ?
+3. **Navigation mobile** : swipe uniquement ou aussi boutons tactiles ?
+4. **Sons** : ajouter des sons sur les interactions ? (avec toggle)
 
 ### À décider pendant l'implémentation
 
@@ -502,4 +574,13 @@ Dossier : `/home/ubuntu/portfoliotest1/ideaimages/`
 
 **Concept validé par :** Achille Robbe
 
-**Prochaine étape :** Attendre la validation des points de décision, puis commencer Phase 1.
+**État actuel :**
+- ✅ Phase 1 : Structure de base (pages, navigation arrows, minimap)
+- 🔄 Phase 2 : Contenu des nodes (pages 1 et 2 faites, 3 et 4 à faire)
+- ⏳ Phase 3 : Interactions sous-nodes (à faire)
+- ⏳ Phase 4 : Animations workflow entre pages (à faire)
+- ⏳ Phase 5 : Responsive mobile (à faire)
+- ⏳ Phase 6 : Accessibilité & Polish (à faire)
+- ⏳ Phase 7 : Contenu réel & SEO (à faire)
+
+**Prochaine étape :** Terminer les pages 3 (Projects) et 4 (Contact) en node géant avec connecteurs, puis implémenter les animations workflow (Phase 4).
