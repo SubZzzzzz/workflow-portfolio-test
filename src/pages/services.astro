@@ -3,147 +3,135 @@ import WorkflowLayout from '../layouts/WorkflowLayout.astro';
 ---
 
 <WorkflowLayout title="Services" currentPage={2}>
-  <section class="min-h-screen flex items-center justify-center px-6 py-32">
-    <div class="max-w-5xl w-full">
-      <!-- Header -->
-      <div class="mb-16">
-        <p class="font-mono text-sm text-accent tracking-widest uppercase mb-6">
-          Node 02 — Services
-        </p>
-        <h1 class="text-5xl md:text-7xl text-fg mb-6 leading-tight">
-          Ce que je construis
-        </h1>
-        <p class="text-lg text-fg-dim max-w-3xl">
-          Des solutions d'automatisation sur mesure pour votre business
-        </p>
-      </div>
-
-      <!-- Sous-nodes : Services -->
-      <div class="grid md:grid-cols-2 gap-6">
-        <div class="sub-node p-8 rounded-lg border border-border bg-surface hover:border-accent transition-all cursor-pointer group">
-          <div class="flex items-start justify-between mb-4">
-            <div class="font-mono text-xs text-fg-dim">01</div>
-            <svg class="w-6 h-6 text-accent-secondary opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-            </svg>
-          </div>
-          <h3 class="font-serif-display text-3xl text-fg mb-3">Workflows n8n</h3>
-          <p class="text-fg-dim mb-4">Création de workflows complexes et automatisés avec n8n, Make, Zapier</p>
-          <ul class="space-y-2 text-sm text-fg-dim">
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-              Automatisation de processus métier
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-              Intégration API et webhooks
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-              Orchestration multi-applications
-            </li>
-          </ul>
-        </div>
-
-        <div class="sub-node p-8 rounded-lg border border-border bg-surface hover:border-accent transition-all cursor-pointer group">
-          <div class="flex items-start justify-between mb-4">
-            <div class="font-mono text-xs text-fg-dim">02</div>
-            <svg class="w-6 h-6 text-accent-secondary opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-            </svg>
-          </div>
-          <h3 class="font-serif-display text-3xl text-fg mb-3">Agents IA</h3>
-          <p class="text-fg-dim mb-4">Bots intelligents sur WhatsApp, Discord, Slack avec GPT et LLMs</p>
-          <ul class="space-y-2 text-sm text-fg-dim">
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-              Chatbots conversationnels
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-              Intégration OpenAI, Anthropic, etc.
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-              RAG et bases de connaissances
-            </li>
-          </ul>
-        </div>
-
-        <div class="sub-node p-8 rounded-lg border border-border bg-surface hover:border-accent transition-all cursor-pointer group">
-          <div class="flex items-start justify-between mb-4">
-            <div class="font-mono text-xs text-fg-dim">03</div>
-            <svg class="w-6 h-6 text-accent-secondary opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-            </svg>
-          </div>
-          <h3 class="font-serif-display text-3xl text-fg mb-3">Intégrations</h3>
-          <p class="text-fg-dim mb-4">Connexion entre vos outils existants : CRM, ERP, bases de données</p>
-          <ul class="space-y-2 text-sm text-fg-dim">
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-              Synchronisation de données
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-              Migration et ETL
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-              Connecteurs custom
-            </li>
-          </ul>
-        </div>
-
-        <div class="sub-node p-8 rounded-lg border border-border bg-surface hover:border-accent transition-all cursor-pointer group">
-          <div class="flex items-start justify-between mb-4">
-            <div class="font-mono text-xs text-fg-dim">04</div>
-            <svg class="w-6 h-6 text-accent-secondary opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
-            </svg>
-          </div>
-          <h3 class="font-serif-display text-3xl text-fg mb-3">Sur Mesure</h3>
-          <p class="text-fg-dim mb-4">Solutions personnalisées pour vos besoins spécifiques</p>
-          <ul class="space-y-2 text-sm text-fg-dim">
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-              Analyse de vos processus
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-              Prototypage rapide
-            </li>
-            <li class="flex items-center gap-2">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
-              Déploiement et support
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Navigation -->
-      <div class="mt-16 flex items-center justify-between">
-        <a
-          href="/"
-          data-nav="prev"
-          class="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-border text-fg hover:border-accent hover:text-accent transition-colors"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+  <section class="min-h-screen flex items-center justify-center px-6 py-32 relative">
+    
+    <!-- Node géant central -->
+    <div class="relative max-w-6xl w-full">
+      
+      <!-- Cadre du node -->
+      <div class="relative border-2 border-border bg-surface/50 backdrop-blur-sm rounded-lg p-12 md:p-16">
+        
+        <!-- Port input (gauche) — reçoit le lien de la page 1 -->
+        <div class="absolute -left-3 top-[calc(50%+30px)] -translate-y-1/2 w-6 h-6 rounded-full bg-[#D97706] border-2 border-[#D97706] z-20"></div>
+        
+        <!-- Port output (droite) -->
+        <div class="absolute -right-3 top-[calc(50%+30px)] -translate-y-1/2 w-6 h-6 rounded-full bg-[#D97706] border-2 border-[#D97706] z-20"></div>
+        
+        <!-- Ligne de connexion entrante (depuis la page 1) -->
+        <div class="absolute top-[calc(50%+30px)] -translate-y-1/2 z-10" style="right: calc(100% + 10px);">
+          <svg width="500" height="80" class="overflow-visible">
+            <path
+              d="M 500 10 C 300 10, 100 25, 0 40"
+              fill="none"
+              stroke="#4A5568"
+              stroke-width="2"
+              opacity="0.5"
+              stroke-dasharray="6 4"
+            />
           </svg>
-          <span>Retour</span>
-        </a>
-
-        <a
-          href="/projects/"
-          data-nav="next"
-          class="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-accent text-bg font-semibold hover:bg-accent/90 transition-colors"
-        >
-          <span>Voir les projets</span>
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+        </div>
+        
+        <!-- Ligne de connexion sortante (vers la page 3) -->
+        <div class="absolute top-[calc(50%+30px)] -translate-y-1/2 z-10" style="left: calc(100% + 10px);">
+          <svg width="500" height="80" class="overflow-visible">
+            <path
+              d="M 0 40 C 200 40, 400 55, 500 70"
+              fill="none"
+              stroke="#4A5568"
+              stroke-width="2"
+              opacity="0.5"
+              stroke-dasharray="6 4"
+            />
           </svg>
-        </a>
+        </div>
+        
+        <!-- Contenu du node -->
+        <div class="relative z-10">
+          <!-- Header -->
+          <div class="mb-12">
+            <p class="font-mono text-sm text-accent tracking-widest uppercase mb-6">
+              Node 02 — Services
+            </p>
+            <h1 class="text-5xl md:text-7xl text-fg mb-6 leading-tight">
+              Ce que je construis
+            </h1>
+            <p class="text-lg text-fg-dim max-w-3xl">
+              Des solutions d'automatisation sur mesure pour votre business
+            </p>
+          </div>
+
+          <!-- Sous-nodes : Services -->
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="sub-node p-8 rounded-lg border border-border bg-bg-elevated hover:border-accent transition-all cursor-pointer group">
+              <div class="flex items-start justify-between mb-4">
+                <div class="font-mono text-xs text-fg-dim">01</div>
+                <svg class="w-6 h-6 text-accent-secondary opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <h3 class="font-serif-display text-3xl text-fg mb-3">Workflows n8n</h3>
+              <p class="text-fg-dim">Création de workflows complexes et automatisés avec n8n, Make, Zapier</p>
+            </div>
+
+            <div class="sub-node p-8 rounded-lg border border-border bg-bg-elevated hover:border-accent transition-all cursor-pointer group">
+              <div class="flex items-start justify-between mb-4">
+                <div class="font-mono text-xs text-fg-dim">02</div>
+                <svg class="w-6 h-6 text-accent-secondary opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </div>
+              <h3 class="font-serif-display text-3xl text-fg mb-3">Agents IA</h3>
+              <p class="text-fg-dim">Bots intelligents sur WhatsApp, Discord, Slack avec GPT et LLMs</p>
+            </div>
+
+            <div class="sub-node p-8 rounded-lg border border-border bg-bg-elevated hover:border-accent transition-all cursor-pointer group">
+              <div class="flex items-start justify-between mb-4">
+                <div class="font-mono text-xs text-fg-dim">03</div>
+                <svg class="w-6 h-6 text-accent-secondary opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+              </div>
+              <h3 class="font-serif-display text-3xl text-fg mb-3">Intégrations</h3>
+              <p class="text-fg-dim">Connexion entre vos outils existants : CRM, ERP, bases de données</p>
+            </div>
+
+            <div class="sub-node p-8 rounded-lg border border-border bg-bg-elevated hover:border-accent transition-all cursor-pointer group">
+              <div class="flex items-start justify-between mb-4">
+                <div class="font-mono text-xs text-fg-dim">04</div>
+                <svg class="w-6 h-6 text-accent-secondary opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+                </svg>
+              </div>
+              <h3 class="font-serif-display text-3xl text-fg mb-3">Sur Mesure</h3>
+              <p class="text-fg-dim">Solutions personnalisées pour vos besoins spécifiques</p>
+            </div>
+          </div>
+
+          <!-- Navigation -->
+          <div class="mt-16 flex items-center justify-between">
+            <a
+              href="/"
+              data-nav="prev"
+              class="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-border text-fg hover:border-accent hover:text-accent transition-colors"
+            >
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
+              </svg>
+              <span>Retour</span>
+            </a>
+
+            <a
+              href="/projects/"
+              data-nav="next"
+              class="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-accent text-bg font-semibold hover:bg-accent/90 transition-colors"
+            >
+              <span>Voir les projets</span>
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+              </svg>
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   </section>
