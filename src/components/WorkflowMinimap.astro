@@ -13,34 +13,32 @@ const pages = [
   { id: 4, label: 'Contact', href: '/contact/' },
 ];
 
-// Dimensions SVG — plus grandes, plus respirées
-const svgWidth = 620;
-const svgHeight = 72;
+// Dimensions SVG — tout aligné horizontalement
+const svgWidth = 580;
+const svgHeight = 48;
 const nodeWidth = 96;
 const nodeHeight = 32;
 const portRadius = 4;
-const gapX = 56; // espacement horizontal entre nodes
-const startX = 30;
-
-// Positions Y décalées pour un look organique (pas tous alignés)
-const nodeYPositions = [8, 18, 6, 22];
+const gapX = 40; // espacement horizontal entre nodes
+const startX = 20;
+const nodeY = 8; // tous les nodes à la même hauteur
 
 function getNodeX(index: number) {
   return startX + index * (nodeWidth + gapX);
 }
 ---
 
-<nav class="fixed top-4 left-1/2 -translate-x-1/2 z-50" aria-label="Navigation workflow">
-  <div class="px-6 py-4 rounded-lg border border-border bg-surface/95 backdrop-blur-sm">
+<nav class="fixed top-3 left-1/2 -translate-x-1/2 z-50" aria-label="Navigation workflow">
+  <div class="px-5 py-3 rounded-lg border border-border bg-surface/95 backdrop-blur-sm">
     <svg
       viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-      class="w-[320px] md:w-[520px] h-auto"
+      class="w-[300px] md:w-[480px] h-auto"
       aria-hidden="true"
     >
       <defs>
         <filter id="activeGlow" x="-30%" y="-30%" width="160%" height="160%">
-          <feGaussianBlur stdDeviation="4" result="blur" />
-          <feFlood flood-color="#E8B86A" flood-opacity="0.5" result="color" />
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feFlood flood-color="#E8B86A" flood-opacity="0.4" result="color" />
           <feComposite in="color" in2="blur" operator="in" result="glowColor" />
           <feMerge>
             <feMergeNode in="glowColor" />
@@ -51,28 +49,24 @@ function getNodeX(index: number) {
 
       {pages.map((page, index) => {
         const x = getNodeX(index);
-        const y = nodeYPositions[index];
+        const centerY = nodeY + nodeHeight / 2;
         const isActive = page.id === currentPage;
         const isPast = page.id < currentPage;
-        const nodeCenterY = y + nodeHeight / 2;
 
         // Node suivant (pour la connexion)
         const nextIndex = index + 1;
         const hasNext = nextIndex < pages.length;
         const nextX = hasNext ? getNodeX(nextIndex) : null;
-        const nextY = hasNext ? nodeYPositions[nextIndex] : 0;
-        const nextCenterY = nextY + nodeHeight / 2;
 
         return (
           <g>
-            {/* Connexion courbe vers le node suivant */}
+            {/* Ligne droite horizontale vers le node suivant */}
             {hasNext && nextX !== null && (
-              <path
-                d={`M ${x + nodeWidth + portRadius} ${nodeCenterY}
-                    C ${x + nodeWidth + portRadius + 20} ${nodeCenterY - 8},
-                      ${nextX - portRadius - 20} ${nextCenterY + 8},
-                      ${nextX - portRadius} ${nextCenterY}`}
-                fill="none"
+              <line
+                x1={x + nodeWidth + portRadius}
+                y1={centerY}
+                x2={nextX - portRadius}
+                y2={centerY}
                 stroke={isPast ? '#E8B86A' : '#1E3050'}
                 stroke-width={isPast ? '1.5' : '1'}
                 opacity={isPast ? '0.7' : '0.4'}
@@ -84,10 +78,10 @@ function getNodeX(index: number) {
               {/* Rectangle du node */}
               <rect
                 x={x}
-                y={y}
+                y={nodeY}
                 width={nodeWidth}
                 height={nodeHeight}
-                rx="5"
+                rx="4"
                 fill={isActive ? 'rgba(232, 184, 106, 0.15)' : 'rgba(21, 34, 56, 0.6)'}
                 stroke={isActive ? '#E8B86A' : '#1E3050'}
                 stroke-width={isActive ? '2' : '1'}
@@ -97,7 +91,7 @@ function getNodeX(index: number) {
               {/* Label */}
               <text
                 x={x + nodeWidth / 2}
-                y={nodeCenterY + 1}
+                y={centerY + 1}
                 text-anchor="middle"
                 dominant-baseline="middle"
                 fill={isActive ? '#E8B86A' : '#8899B4'}
@@ -112,7 +106,7 @@ function getNodeX(index: number) {
               {/* Port input (gauche) */}
               <circle
                 cx={x + 2}
-                cy={nodeCenterY}
+                cy={centerY}
                 r={portRadius}
                 fill={isPast || isActive ? '#E8B86A' : '#0A1628'}
                 stroke={isPast || isActive ? '#E8B86A' : '#2A4060'}
@@ -122,7 +116,7 @@ function getNodeX(index: number) {
               {/* Port output (droite) */}
               <circle
                 cx={x + nodeWidth - 2}
-                cy={nodeCenterY}
+                cy={centerY}
                 r={portRadius}
                 fill={isPast || isActive ? '#E8B86A' : '#0A1628'}
                 stroke={isPast || isActive ? '#E8B86A' : '#2A4060'}
@@ -131,10 +125,10 @@ function getNodeX(index: number) {
 
               {/* Zone de clic élargie */}
               <rect
-                x={x - 6}
-                y={y - 6}
-                width={nodeWidth + 12}
-                height={nodeHeight + 12}
+                x={x - 4}
+                y={nodeY - 4}
+                width={nodeWidth + 8}
+                height={nodeHeight + 8}
                 fill="transparent"
               />
             </a>

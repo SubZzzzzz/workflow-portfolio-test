@@ -3,11 +3,9 @@ import WorkflowLayout from '../layouts/WorkflowLayout.astro';
 ---
 
 <WorkflowLayout title="Services" currentPage={2}>
-  <section class="min-h-screen flex items-center justify-center relative">
-    <div class="relative w-full h-screen flex items-center justify-center">
-      
-      <!-- Node géant central -->
-      <div class="relative max-w-6xl w-full px-6">
+  <section class="min-h-screen flex items-center justify-center pt-16 pb-8">
+    <!-- Node central -->
+    <div class="relative max-w-6xl w-full px-6">
         <div class="relative border-2 border-border bg-surface/50 backdrop-blur-sm rounded-lg p-12 md:p-16">
           
           <!-- Contenu du node -->
@@ -99,40 +97,5 @@ import WorkflowLayout from '../layouts/WorkflowLayout.astro';
           </div>
         </div>
       </div>
-      
-      <!-- Port input (gauche) -->
-      <div class="absolute top-[calc(50%+30px)] -translate-y-1/2 right-[calc(50%+576px+12px)] w-6 h-6 rounded-full bg-[#D97706] border-2 border-[#D97706] z-20 hidden md:block"></div>
-      
-      <!-- Port output (droite) -->
-      <div class="absolute top-[calc(50%+30px)] -translate-y-1/2 left-[calc(50%+576px+12px)] w-6 h-6 rounded-full bg-[#D97706] border-2 border-[#D97706] z-20 hidden md:block"></div>
-      
-      <!-- Ligne de connexion entrante -->
-      <div class="absolute top-[calc(50%+30px)] -translate-y-1/2 right-[calc(50%+576px+10px)] z-10 hidden md:block">
-        <svg width="500" height="80" class="overflow-visible">
-          <path
-            d="M 0 40 C 150 20, 350 20, 500 40"
-            fill="none"
-            stroke="#4A5568"
-            stroke-width="2"
-            opacity="0.5"
-            stroke-dasharray="6 4"
-          />
-        </svg>
-      </div>
-      
-      <!-- Ligne de connexion sortante -->
-      <div class="absolute top-[calc(50%+30px)] -translate-y-1/2 left-[calc(50%+576px+10px)] z-10 hidden md:block">
-        <svg width="500" height="80" class="overflow-visible">
-          <path
-            d="M 0 40 C 200 40, 400 55, 500 70"
-            fill="none"
-            stroke="#4A5568"
-            stroke-width="2"
-            opacity="0.5"
-            stroke-dasharray="6 4"
-          />
-        </svg>
-      </div>
-    </div>
   </section>
 </WorkflowLayout>
