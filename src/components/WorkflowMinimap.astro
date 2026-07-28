@@ -13,27 +13,50 @@ const pages = [
   { id: 4, label: 'Contact', href: '/contact/' },
 ];
 
-// Dimensions pour layout vertical en zigzag
+// Layout zigzag
 const nodeWidth = 80;
 const nodeHeight = 28;
 const portRadius = 3;
 const svgWidth = 200;
 const svgHeight = 180;
 
-// Positions en zigzag : Start → Services → Projects → Contact
 const positions = [
-  { x: 10, y: 10 },      // Start (en haut à gauche)
-  { x: 10, y: 70 },      // Services (en dessous de Start)
-  { x: 110, y: 70 },     // Projects (à droite de Services)
-  { x: 110, y: 130 },    // Contact (en dessous de Projects)
+  { x: 10, y: 10 },      // Start
+  { x: 10, y: 70 },      // Services (en dessous)
+  { x: 110, y: 70 },     // Projects (à droite)
+  { x: 110, y: 130 },    // Contact (en dessous)
 ];
 
-function getNodeCenter(nodeIndex: number) {
-  const pos = positions[nodeIndex];
-  return {
-    x: pos.x + nodeWidth / 2,
-    y: pos.y + nodeHeight / 2,
-  };
+// Pour chaque node, calculer les directions d'entrée et de sortie
+type Direction = 'top' | 'bottom' | 'left' | 'right';
+
+function getConnectionDirection(fromIdx: number, toIdx: number): { out: Direction; in: Direction } {
+  const from = positions[fromIdx];
+  const to = positions[toIdx];
+  const fromCx = from.x + nodeWidth / 2;
+  const fromCy = from.y + nodeHeight / 2;
+  const toCx = to.x + nodeWidth / 2;
+  const toCy = to.y + nodeHeight / 2;
+
+  if (fromCx === toCx) {
+    // Connexion verticale
+    return from.y < to.y
+      ? { out: 'bottom', in: 'top' }
+      : { out: 'top', in: 'bottom' };
+  }
+  // Connexion horizontale
+  return from.x < to.x
+    ? { out: 'right', in: 'left' }
+    : { out: 'left', in: 'right' };
+}
+
+function getPortPosition(pos: { x: number; y: number }, dir: Direction) {
+  switch (dir) {
+    case 'top': return { cx: pos.x + nodeWidth / 2, cy: pos.y + 2 };
+    case 'bottom': return { cx: pos.x + nodeWidth / 2, cy: pos.y + nodeHeight - 2 };
+    case 'left': return { cx: pos.x + 2, cy: pos.y + nodeHeight / 2 };
+    case 'right': return { cx: pos.x + nodeWidth - 2, cy: pos.y + nodeHeight / 2 };
+  }
 }
 ---
 
@@ -61,32 +84,23 @@ function getNodeCenter(nodeIndex: number) {
         const isActive = page.id === currentPage;
         const isPast = page.id < currentPage;
 
-        // Calculer la connexion vers le node suivant (lignes droites verticales/horizontales)
+        // Connexion sortante
         const nextIndex = index + 1;
         const hasNext = nextIndex < positions.length;
-        let connectionPath = '';
-        
-        if (hasNext) {
-          const currentCenter = getNodeCenter(index);
-          const nextCenter = getNodeCenter(nextIndex);
-          
-          // Ligne verticale ou horizontale selon la position
-          if (currentCenter.x === nextCenter.x) {
-            // Connexion verticale (Start → Services ou Projects → Contact)
-            connectionPath = `M ${currentCenter.x} ${currentCenter.y + nodeHeight / 2} L ${nextCenter.x} ${nextCenter.y - nodeHeight / 2}`;
-          } else {
-            // Connexion horizontale (Services → Projects)
-            connectionPath = `M ${currentCenter.x + nodeWidth / 2} ${currentCenter.y} L ${nextCenter.x - nodeWidth / 2} ${nextCenter.y}`;
-          }
-        }
+        const conn = hasNext ? getConnectionDirection(index, nextIndex) : null;
+        const outPort = conn ? getPortPosition(pos, conn.out) : null;
+        const nextPos = hasNext ? positions[nextIndex] : null;
+        const inPort = (conn && nextPos) ? getPortPosition(nextPos, conn.in) : null;
 
         return (
           <g>
-            {/* Ligne de connexion */}
-            {hasNext && (
-              <path
-                d={connectionPath}
-                fill="none"
+            {/* Ligne de connexion (port de sortie → port d'entrée du suivant) */}
+            {hasNext && outPort && inPort && (
+              <line
+                x1={outPort.cx}
+                y1={outPort.cy}
+                x2={inPort.cx}
+                y2={inPort.cy}
                 stroke={isPast ? '#E8B86A' : '#1E3050'}
                 stroke-width={isPast ? '2' : '1.5'}
                 opacity={isPast ? '0.8' : '0.5'}
@@ -95,7 +109,6 @@ function getNodeCenter(nodeIndex: number) {
 
             {/* Node cliquable */}
             <a href={page.href} class="cursor-pointer" aria-label={`Aller à ${page.label}`}>
-              {/* Rectangle du node */}
               <rect
                 x={pos.x}
                 y={pos.y}
@@ -108,7 +121,6 @@ function getNodeCenter(nodeIndex: number) {
                 filter={isActive ? 'url(#activeGlow)' : undefined}
               />
 
-              {/* Label */}
               <text
                 x={pos.x + nodeWidth / 2}
                 y={pos.y + nodeHeight / 2 + 1}
@@ -123,25 +135,29 @@ function getNodeCenter(nodeIndex: number) {
                 {page.label}
               </text>
 
-              {/* Port input (gauche) */}
-              <circle
-                cx={pos.x + 2}
-                cy={pos.y + nodeHeight / 2}
-                r={portRadius}
-                fill={isPast || isActive ? '#E8B86A' : '#0A1628'}
-                stroke={isPast || isActive ? '#E8B86A' : '#2A4060'}
-                stroke-width="1.5"
-              />
+              {/* Port d'entrée (si ce n'est pas le premier node) */}
+              {index > 0 && conn && (
+                <circle
+                  cx={getPortPosition(pos, conn.in).cx}
+                  cy={getPortPosition(pos, conn.in).cy}
+                  r={portRadius}
+                  fill={isPast || isActive ? '#E8B86A' : '#0A1628'}
+                  stroke={isPast || isActive ? '#E8B86A' : '#2A4060'}
+                  stroke-width="1.5"
+                />
+              )}
 
-              {/* Port output (droite) */}
-              <circle
-                cx={pos.x + nodeWidth - 2}
-                cy={pos.y + nodeHeight / 2}
-                r={portRadius}
-                fill={isPast || isActive ? '#E8B86A' : '#0A1628'}
-                stroke={isPast || isActive ? '#E8B86A' : '#2A4060'}
-                stroke-width="1.5"
-              />
+              {/* Port de sortie (si ce n'est pas le dernier node) */}
+              {hasNext && outPort && (
+                <circle
+                  cx={outPort.cx}
+                  cy={outPort.cy}
+                  r={portRadius}
+                  fill={isPast || isActive ? '#E8B86A' : '#0A1628'}
+                  stroke={isPast || isActive ? '#E8B86A' : '#2A4060'}
+                  stroke-width="1.5"
+                />
+              )}
 
               {/* Zone de clic élargie */}
               <rect
