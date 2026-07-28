@@ -117,10 +117,10 @@ function getTextColor(isActive: boolean, isPast: boolean) {
         const lineWidth = isPast ? '2' : '1.5';
         const lineOpacity = isPast ? '0.8' : '0.4';
 
-        // Port d'entrée : vert si la connexion entrante est validée (node source passé)
+        // Port d'entrée : orange si node actif, vert si connexion validée, sombre sinon
         const prevNodeIsPast = hasPrev && pages[prevIndex].id < currentPage;
-        const inPortColor = prevNodeIsPast ? COLOR_DONE : COLOR_PORT_IDLE;
-        const inPortStroke = prevNodeIsPast ? COLOR_DONE : '#2A4060';
+        const inPortColor = isActive ? COLOR_ACTIVE : prevNodeIsPast ? COLOR_DONE : COLOR_PORT_IDLE;
+        const inPortStroke = isActive ? COLOR_ACTIVE : prevNodeIsPast ? COLOR_DONE : '#2A4060';
 
         // Port de sortie : vert si validé, orange si en cours, sombre sinon
         const outPortColor = isPast ? COLOR_DONE : isActive ? COLOR_ACTIVE : COLOR_PORT_IDLE;
