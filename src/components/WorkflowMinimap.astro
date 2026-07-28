@@ -13,26 +13,35 @@ const pages = [
   { id: 4, label: 'Contact', href: '/contact/' },
 ];
 
-// Dimensions SVG — tout aligné horizontalement
-const svgWidth = 580;
-const svgHeight = 48;
-const nodeWidth = 96;
-const nodeHeight = 32;
-const portRadius = 4;
-const gapX = 40; // espacement horizontal entre nodes
-const startX = 20;
-const nodeY = 8; // tous les nodes à la même hauteur
+// Dimensions pour layout vertical en zigzag
+const nodeWidth = 80;
+const nodeHeight = 28;
+const portRadius = 3;
+const svgWidth = 200;
+const svgHeight = 180;
 
-function getNodeX(index: number) {
-  return startX + index * (nodeWidth + gapX);
+// Positions en zigzag : Start → Services → Projects → Contact
+const positions = [
+  { x: 10, y: 10 },      // Start (en haut à gauche)
+  { x: 10, y: 70 },      // Services (en dessous de Start)
+  { x: 110, y: 70 },     // Projects (à droite de Services)
+  { x: 110, y: 130 },    // Contact (en dessous de Projects)
+];
+
+function getNodeCenter(nodeIndex: number) {
+  const pos = positions[nodeIndex];
+  return {
+    x: pos.x + nodeWidth / 2,
+    y: pos.y + nodeHeight / 2,
+  };
 }
 ---
 
-<nav class="fixed top-3 left-1/2 -translate-x-1/2 z-50" aria-label="Navigation workflow">
-  <div class="px-5 py-3 rounded-lg border border-border bg-surface/95 backdrop-blur-sm">
+<nav class="fixed top-4 left-4 z-50" aria-label="Navigation workflow">
+  <div class="px-4 py-4 rounded-lg border border-border bg-surface/95 backdrop-blur-sm">
     <svg
       viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-      class="w-[300px] md:w-[480px] h-auto"
+      class="w-[180px] h-auto"
       aria-hidden="true"
     >
       <defs>
@@ -48,28 +57,39 @@ function getNodeX(index: number) {
       </defs>
 
       {pages.map((page, index) => {
-        const x = getNodeX(index);
-        const centerY = nodeY + nodeHeight / 2;
+        const pos = positions[index];
         const isActive = page.id === currentPage;
         const isPast = page.id < currentPage;
 
-        // Node suivant (pour la connexion)
+        // Calculer la connexion vers le node suivant (lignes droites verticales/horizontales)
         const nextIndex = index + 1;
-        const hasNext = nextIndex < pages.length;
-        const nextX = hasNext ? getNodeX(nextIndex) : null;
+        const hasNext = nextIndex < positions.length;
+        let connectionPath = '';
+        
+        if (hasNext) {
+          const currentCenter = getNodeCenter(index);
+          const nextCenter = getNodeCenter(nextIndex);
+          
+          // Ligne verticale ou horizontale selon la position
+          if (currentCenter.x === nextCenter.x) {
+            // Connexion verticale (Start → Services ou Projects → Contact)
+            connectionPath = `M ${currentCenter.x} ${currentCenter.y + nodeHeight / 2} L ${nextCenter.x} ${nextCenter.y - nodeHeight / 2}`;
+          } else {
+            // Connexion horizontale (Services → Projects)
+            connectionPath = `M ${currentCenter.x + nodeWidth / 2} ${currentCenter.y} L ${nextCenter.x - nodeWidth / 2} ${nextCenter.y}`;
+          }
+        }
 
         return (
           <g>
-            {/* Ligne droite horizontale vers le node suivant */}
-            {hasNext && nextX !== null && (
-              <line
-                x1={x + nodeWidth + portRadius}
-                y1={centerY}
-                x2={nextX - portRadius}
-                y2={centerY}
+            {/* Ligne de connexion */}
+            {hasNext && (
+              <path
+                d={connectionPath}
+                fill="none"
                 stroke={isPast ? '#E8B86A' : '#1E3050'}
-                stroke-width={isPast ? '1.5' : '1'}
-                opacity={isPast ? '0.7' : '0.4'}
+                stroke-width={isPast ? '2' : '1.5'}
+                opacity={isPast ? '0.8' : '0.5'}
               />
             )}
 
@@ -77,8 +97,8 @@ function getNodeX(index: number) {
             <a href={page.href} class="cursor-pointer" aria-label={`Aller à ${page.label}`}>
               {/* Rectangle du node */}
               <rect
-                x={x}
-                y={nodeY}
+                x={pos.x}
+                y={pos.y}
                 width={nodeWidth}
                 height={nodeHeight}
                 rx="4"
@@ -90,12 +110,12 @@ function getNodeX(index: number) {
 
               {/* Label */}
               <text
-                x={x + nodeWidth / 2}
-                y={centerY + 1}
+                x={pos.x + nodeWidth / 2}
+                y={pos.y + nodeHeight / 2 + 1}
                 text-anchor="middle"
                 dominant-baseline="middle"
                 fill={isActive ? '#E8B86A' : '#8899B4'}
-                font-size="10"
+                font-size="9"
                 font-family="JetBrains Mono, monospace"
                 font-weight={isActive ? '500' : '400'}
                 class="pointer-events-none select-none"
@@ -105,8 +125,8 @@ function getNodeX(index: number) {
 
               {/* Port input (gauche) */}
               <circle
-                cx={x + 2}
-                cy={centerY}
+                cx={pos.x + 2}
+                cy={pos.y + nodeHeight / 2}
                 r={portRadius}
                 fill={isPast || isActive ? '#E8B86A' : '#0A1628'}
                 stroke={isPast || isActive ? '#E8B86A' : '#2A4060'}
@@ -115,8 +135,8 @@ function getNodeX(index: number) {
 
               {/* Port output (droite) */}
               <circle
-                cx={x + nodeWidth - 2}
-                cy={centerY}
+                cx={pos.x + nodeWidth - 2}
+                cy={pos.y + nodeHeight / 2}
                 r={portRadius}
                 fill={isPast || isActive ? '#E8B86A' : '#0A1628'}
                 stroke={isPast || isActive ? '#E8B86A' : '#2A4060'}
@@ -125,8 +145,8 @@ function getNodeX(index: number) {
 
               {/* Zone de clic élargie */}
               <rect
-                x={x - 4}
-                y={nodeY - 4}
+                x={pos.x - 4}
+                y={pos.y - 4}
                 width={nodeWidth + 8}
                 height={nodeHeight + 8}
                 fill="transparent"
