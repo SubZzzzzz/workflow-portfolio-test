@@ -10,7 +10,7 @@ import NodePort from '../components/NodePort.astro';
         <div class="relative border-2 border-border bg-surface/50 backdrop-blur-sm rounded-lg p-12 md:p-16">
           
           <!-- Port de sortie (vers Services en bas) -->
-          <NodePort direction="bottom" status="active" size="lg" />
+          <NodePort direction="bottom" status="active" size="lg" href="/services/" dataNav="next" />
           
           <!-- Contenu du node -->
           <div class="relative z-10">
@@ -49,19 +49,7 @@ import NodePort from '../components/NodePort.astro';
               </div>
             </div>
 
-            <!-- CTA Navigation -->
-            <div class="mt-16">
-              <a
-                href="/services/"
-                data-nav="next"
-                class="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-accent text-bg font-semibold hover:bg-accent/90 transition-colors"
-              >
-                <span>Découvrir mes services</span>
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-                </svg>
-              </a>
-            </div>
+
           </div>
         </div>
       </div>

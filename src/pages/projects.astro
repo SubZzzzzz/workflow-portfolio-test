@@ -8,10 +8,10 @@ import NodePort from '../components/NodePort.astro';
     <div class="relative max-w-5xl w-full border-2 border-border bg-surface/50 backdrop-blur-sm rounded-lg p-12 md:p-16">
       
       <!-- Port d'entrée (depuis Services à gauche) -->
-      <NodePort direction="left" status="done" size="lg" />
+      <NodePort direction="left" status="done" size="lg" href="/services/" dataNav="prev" />
       
       <!-- Port de sortie (vers Contact en bas) -->
-      <NodePort direction="bottom" status="active" size="lg" />
+      <NodePort direction="bottom" status="active" size="lg" href="/contact/" dataNav="next" />
       <!-- Header -->
       <div class="mb-16">
         <p class="font-mono text-sm text-accent tracking-widest uppercase mb-6">
@@ -88,30 +88,7 @@ import NodePort from '../components/NodePort.astro';
         </div>
       </div>
 
-      <!-- Navigation -->
-      <div class="mt-16 flex items-center justify-between">
-        <a
-          href="/services/"
-          data-nav="prev"
-          class="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-border text-fg hover:border-accent hover:text-accent transition-colors"
-        >
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 17l-5-5m0 0l5-5m-5 5h12" />
-          </svg>
-          <span>Services</span>
-        </a>
 
-        <a
-          href="/contact/"
-          data-nav="next"
-          class="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-accent text-bg font-semibold hover:bg-accent/90 transition-colors"
-        >
-          <span>Me contacter</span>
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-          </svg>
-        </a>
-      </div>
     </div>
   </section>
 </WorkflowLayout>

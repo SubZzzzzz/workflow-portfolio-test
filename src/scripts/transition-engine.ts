@@ -1,78 +1,62 @@
-// Transition Engine — Signal animé + glissement synchronisé des pages
-// Workflow zigzag : Start ↓ Services → Projects ↓ Contact
+// Transition Engine — Signal animé + glissement synchronisé
+// Le signal vert se propage le long du lien pendant que la page glisse
 
-interface TransitionConfig {
-  slideDirection: 'up' | 'down' | 'left' | 'right';
-  signalAxis: 'vertical' | 'horizontal';
-  signalStart: number; // 0-1, position de départ du signal
-  signalEnd: number;   // 0-1, position d'arrivée du signal
-}
+import { preloadAdjacentPages, getCachedPage } from './page-cache';
+import { NODE_POSITIONS, getSlideDirection, type SlideDirection } from './node-positions';
 
-// Configuration des transitions selon la page source et la direction
-const TRANSITIONS: Record<string, { forward: TransitionConfig; backward: TransitionConfig }> = {
-  '/': {
-    forward:  { slideDirection: 'up',    signalAxis: 'vertical',   signalStart: 0, signalEnd: 1 },
-    backward: { slideDirection: 'down',  signalAxis: 'vertical',   signalStart: 1, signalEnd: 0 },
-  },
-  '/services/': {
-    forward:  { slideDirection: 'left',  signalAxis: 'horizontal', signalStart: 0, signalEnd: 1 },
-    backward: { slideDirection: 'right', signalAxis: 'horizontal', signalStart: 1, signalEnd: 0 },
-  },
-  '/projects/': {
-    forward:  { slideDirection: 'up',    signalAxis: 'vertical',   signalStart: 0, signalEnd: 1 },
-    backward: { slideDirection: 'down',  signalAxis: 'vertical',   signalStart: 1, signalEnd: 0 },
-  },
-  '/contact/': {
-    forward:  { slideDirection: 'up',    signalAxis: 'vertical',   signalStart: 0, signalEnd: 1 },
-    backward: { slideDirection: 'down',  signalAxis: 'vertical',   signalStart: 1, signalEnd: 0 },
-  },
-};
-
-const COLOR_ACTIVE = '#F97316'; // orange
-const COLOR_DONE = '#22C55E';   // vert
-const TRANSITION_DURATION = 900; // ms
+const COLOR_SIGNAL = '#F97316';
+const COLOR_SIGNAL_END = '#22C55E';
+const COLOR_CABLE = '#1E3050';
+const TRANSITION_DURATION = 1200;
 
 let isTransitioning = false;
-let transitionAbortController: AbortController | null = null;
 
-// Easing: ease-in-out cubic
 function easeInOutCubic(t: number): number {
   return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
 
-// Récupérer la page courante
 function getCurrentPath(): string {
   return window.location.pathname;
 }
 
-// Déterminer si on va en avant ou en arrière
-function isForwardNavigation(from: string, to: string): boolean {
-  const order = ['/', '/services/', '/projects/', '/contact/'];
-  return order.indexOf(to) > order.indexOf(from);
+function extractMain(html: string): string {
+  const parser = new DOMParser();
+  const doc = parser.parseFromString(html, 'text/html');
+  const main = doc.querySelector('main');
+  return main ? main.innerHTML : '';
 }
 
-// Créer l'overlay SVG pour le signal
-function createSignalOverlay(config: TransitionConfig): SVGSVGElement {
+interface SignalOverlayElements {
+  svg: SVGSVGElement;
+  cable: SVGLineElement;
+  signalLine: SVGLineElement;
+  signalHead: SVGCircleElement;
+  pathLength: number;
+}
+
+function createSignalOverlay(fromPath: string, toPath: string): SignalOverlayElements {
+  const from = NODE_POSITIONS[fromPath];
+  const to = NODE_POSITIONS[toPath];
+
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', '0 0 100 100');
   svg.setAttribute('preserveAspectRatio', 'none');
   svg.style.cssText = 'position:fixed;inset:0;z-index:200;pointer-events:none;width:100vw;height:100vh;';
 
-  // Définitions (glow filter)
   const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
   defs.innerHTML = `
-    <filter id="signalGlow" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="2" result="blur" />
-      <feFlood flood-color="${COLOR_ACTIVE}" flood-opacity="0.6" result="color" />
+    <filter id="sigGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1.5" result="blur" />
+      <feFlood flood-color="${COLOR_SIGNAL}" flood-opacity="0.7" result="color" />
       <feComposite in="color" in2="blur" operator="in" result="glowColor" />
       <feMerge>
         <feMergeNode in="glowColor" />
         <feMergeNode in="SourceGraphic" />
       </feMerge>
     </filter>
-    <filter id="signalGlowGreen" x="-50%" y="-50%" width="200%" height="200%">
-      <feGaussianBlur stdDeviation="2" result="blur" />
-      <feFlood flood-color="${COLOR_DONE}" flood-opacity="0.6" result="color" />
+    <filter id="sigGlowGreen" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1.5" result="blur" />
+      <feFlood flood-color="${COLOR_SIGNAL_END}" flood-opacity="0.7" result="color" />
       <feComposite in="color" in2="blur" operator="in" result="glowColor" />
       <feMerge>
         <feMergeNode in="glowColor" />
@@ -82,108 +66,74 @@ function createSignalOverlay(config: TransitionConfig): SVGSVGElement {
   `;
   svg.appendChild(defs);
 
-  // Ligne de fond (le "câble")
   const cable = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-  if (config.signalAxis === 'vertical') {
-    cable.setAttribute('x1', '50');
-    cable.setAttribute('y1', '0');
-    cable.setAttribute('x2', '50');
-    cable.setAttribute('y2', '100');
-  } else {
-    cable.setAttribute('x1', '0');
-    cable.setAttribute('y1', '50');
-    cable.setAttribute('x2', '100');
-    cable.setAttribute('y2', '50');
-  }
-  cable.setAttribute('stroke', '#1E3050');
-  cable.setAttribute('stroke-width', '0.3');
-  cable.setAttribute('opacity', '0.4');
+  cable.setAttribute('x1', `${from.x}`);
+  cable.setAttribute('y1', `${from.y}`);
+  cable.setAttribute('x2', `${to.x}`);
+  cable.setAttribute('y2', `${to.y}`);
+  cable.setAttribute('stroke', COLOR_CABLE);
+  cable.setAttribute('stroke-width', '0.15');
+  cable.setAttribute('opacity', '0.5');
   svg.appendChild(cable);
 
-  // Ligne de signal (se remplit progressivement)
+  const dx = to.x - from.x;
+  const dy = to.y - from.y;
+  const pathLength = Math.sqrt(dx * dx + dy * dy);
+
   const signalLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
-  const len = 100;
-  signalLine.setAttribute('stroke-dasharray', `${len}`);
-  signalLine.setAttribute('stroke-dashoffset', `${len}`);
-  signalLine.setAttribute('stroke-width', '0.5');
-  signalLine.setAttribute('filter', 'url(#signalGlow)');
-
-  if (config.signalAxis === 'vertical') {
-    signalLine.setAttribute('x1', '50');
-    signalLine.setAttribute('x2', '50');
-    if (config.signalStart < config.signalEnd) {
-      signalLine.setAttribute('y1', '0');
-      signalLine.setAttribute('y2', '100');
-    } else {
-      signalLine.setAttribute('y1', '100');
-      signalLine.setAttribute('y2', '0');
-    }
-  } else {
-    signalLine.setAttribute('y1', '50');
-    signalLine.setAttribute('y2', '50');
-    if (config.signalStart < config.signalEnd) {
-      signalLine.setAttribute('x1', '0');
-      signalLine.setAttribute('x2', '100');
-    } else {
-      signalLine.setAttribute('x1', '100');
-      signalLine.setAttribute('x2', '0');
-    }
-  }
-
+  signalLine.setAttribute('x1', `${from.x}`);
+  signalLine.setAttribute('y1', `${from.y}`);
+  signalLine.setAttribute('x2', `${to.x}`);
+  signalLine.setAttribute('y2', `${to.y}`);
+  signalLine.setAttribute('stroke', COLOR_SIGNAL);
+  signalLine.setAttribute('stroke-width', '0.35');
+  signalLine.setAttribute('stroke-dasharray', `${pathLength}`);
+  signalLine.setAttribute('stroke-dashoffset', `${pathLength}`);
+  signalLine.setAttribute('filter', 'url(#sigGlow)');
   svg.appendChild(signalLine);
 
-  // Tête du signal (point lumineux)
   const signalHead = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
-  signalHead.setAttribute('r', '1.2');
-  signalHead.setAttribute('fill', COLOR_ACTIVE);
-  signalHead.setAttribute('filter', 'url(#signalGlow)');
+  signalHead.setAttribute('cx', `${from.x}`);
+  signalHead.setAttribute('cy', `${from.y}`);
+  signalHead.setAttribute('r', '0.8');
+  signalHead.setAttribute('fill', COLOR_SIGNAL);
+  signalHead.setAttribute('filter', 'url(#sigGlow)');
   signalHead.setAttribute('opacity', '0');
   svg.appendChild(signalHead);
 
-  return svg;
+  return { svg, cable, signalLine, signalHead, pathLength };
 }
 
-// Mettre à jour le signal pendant l'animation
-function updateSignal(
-  svg: SVGSVGElement,
-  progress: number,
-  config: TransitionConfig
-) {
-  const signalLine = svg.querySelector('line:nth-child(3)') as SVGLineElement;
-  const signalHead = svg.querySelector('circle') as SVGCircleElement;
+function updateSignal(elements: SignalOverlayElements, progress: number, fromPath: string, toPath: string): void {
+  const { signalLine, signalHead, pathLength } = elements;
+  const from = NODE_POSITIONS[fromPath];
+  const to = NODE_POSITIONS[toPath];
 
-  if (!signalLine || !signalHead) return;
+  signalLine.setAttribute('stroke-dashoffset', `${pathLength * (1 - progress)}`);
 
-  const len = 100;
-  const dashOffset = len * (1 - progress);
-  signalLine.setAttribute('stroke-dashoffset', `${dashOffset}`);
-
-  // Couleur : orange → vert quand on approche de la fin
   const isGreen = progress > 0.85;
-  const color = isGreen ? COLOR_DONE : COLOR_ACTIVE;
+  const color = isGreen ? COLOR_SIGNAL_END : COLOR_SIGNAL;
+  const filter = isGreen ? 'url(#sigGlowGreen)' : 'url(#sigGlow)';
   signalLine.setAttribute('stroke', color);
-  signalLine.setAttribute('filter', isGreen ? 'url(#signalGlowGreen)' : 'url(#signalGlow)');
+  signalLine.setAttribute('filter', filter);
 
-  // Position de la tête du signal
-  const t = config.signalStart + (config.signalEnd - config.signalStart) * progress;
-  if (config.signalAxis === 'vertical') {
-    signalHead.setAttribute('cx', '50');
-    signalHead.setAttribute('cy', `${t * 100}`);
-  } else {
-    signalHead.setAttribute('cx', `${t * 100}`);
-    signalHead.setAttribute('cy', '50');
-  }
+  const cx = from.x + (to.x - from.x) * progress;
+  const cy = from.y + (to.y - from.y) * progress;
+  signalHead.setAttribute('cx', `${cx}`);
+  signalHead.setAttribute('cy', `${cy}`);
   signalHead.setAttribute('fill', color);
-  signalHead.setAttribute('filter', isGreen ? 'url(#signalGlowGreen)' : 'url(#signalGlow)');
-  signalHead.setAttribute('opacity', progress < 0.05 ? `${progress * 20}` : progress > 0.95 ? `${(1 - progress) * 20}` : '1');
+  signalHead.setAttribute('filter', filter);
+
+  if (progress < 0.05) {
+    signalHead.setAttribute('opacity', `${progress * 20}`);
+  } else if (progress > 0.95) {
+    signalHead.setAttribute('opacity', `${(1 - progress) * 20}`);
+  } else {
+    signalHead.setAttribute('opacity', '1');
+  }
 }
 
-// Positionner une page selon la direction et le progrès
-function positionPage(
-  el: HTMLElement,
-  direction: 'up' | 'down' | 'left' | 'right' | 'none',
-  progress: number
-) {
+function positionPage(el: HTMLElement, direction: SlideDirection | 'none', progress: number): void {
   const p = progress * 100;
   switch (direction) {
     case 'up':    el.style.transform = `translateY(${-p}%)`; break;
@@ -194,49 +144,36 @@ function positionPage(
   }
 }
 
-// Extraire le contenu <main> d'un document HTML
-function extractMain(html: string): string {
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
-  const main = doc.querySelector('main');
-  return main ? main.innerHTML : '';
+function getOppositeDirection(dir: SlideDirection): SlideDirection {
+  switch (dir) {
+    case 'up': return 'down';
+    case 'down': return 'up';
+    case 'left': return 'right';
+    case 'right': return 'left';
+  }
 }
 
-// Navigation principale avec transition animée
-async function navigateTo(url: string) {
+async function navigateTo(url: string): Promise<void> {
   if (isTransitioning) return;
-
   const currentPath = getCurrentPath();
   if (currentPath === url) return;
 
   isTransitioning = true;
-  transitionAbortController = new AbortController();
-
-  const forward = isForwardNavigation(currentPath, url);
-  const pageConfig = TRANSITIONS[currentPath];
-  const config = forward ? pageConfig?.forward : pageConfig?.backward;
-
-  if (!config) {
-    // Fallback: navigation classique
-    window.location.href = url;
-    return;
-  }
-
-  // Direction de glissement de la page courante et de la page suivante
-  const currentSlideDir = config.slideDirection;
-  const nextSlideDir = config.slideDirection; // Même direction mais sens opposé
 
   try {
-    // 1. Fetch la page cible
-    const response = await fetch(url, { signal: transitionAbortController.signal });
-    const html = await response.text();
+    let html = getCachedPage(url);
+    if (!html) {
+      const response = await fetch(url);
+      html = await response.text();
+    }
+
     const newMainHTML = extractMain(html);
+    const slideDirection = getSlideDirection(currentPath, url);
+    const nextSlideDir = getOppositeDirection(slideDirection);
 
-    // 2. Créer l'overlay signal
-    const overlay = createSignalOverlay(config);
-    document.body.appendChild(overlay);
+    const signalOverlay = createSignalOverlay(currentPath, url);
+    document.body.appendChild(signalOverlay.svg);
 
-    // 3. Préparer la page suivante
     const currentMain = document.querySelector('main') as HTMLElement;
     if (!currentMain) return;
 
@@ -251,15 +188,9 @@ async function navigateTo(url: string) {
       will-change: transform;
     `;
 
-    // Position de départ de la page suivante (hors écran)
-    const startDir = currentSlideDir === 'up' ? 'down' :
-                     currentSlideDir === 'down' ? 'up' :
-                     currentSlideDir === 'left' ? 'right' :
-                     currentSlideDir === 'right' ? 'left' : 'none';
-    positionPage(nextMain, startDir, 1);
+    positionPage(nextMain, nextSlideDir, 1);
     document.body.appendChild(nextMain);
 
-    // Position de départ de la page courante
     currentMain.style.cssText = `
       position: fixed;
       inset: 0;
@@ -269,7 +200,6 @@ async function navigateTo(url: string) {
     `;
     positionPage(currentMain, 'none', 0);
 
-    // 4. Animer
     const startTime = performance.now();
 
     await new Promise<void>((resolve) => {
@@ -278,12 +208,9 @@ async function navigateTo(url: string) {
         const rawProgress = Math.min(elapsed / TRANSITION_DURATION, 1);
         const easedProgress = easeInOutCubic(rawProgress);
 
-        // Glissement des pages
-        positionPage(currentMain, currentSlideDir, easedProgress);
-        positionPage(nextMain, startDir, 1 - easedProgress);
-
-        // Signal
-        updateSignal(overlay, easedProgress, config);
+        positionPage(currentMain, slideDirection, easedProgress);
+        positionPage(nextMain, nextSlideDir, 1 - easedProgress);
+        updateSignal(signalOverlay, easedProgress, currentPath, url);
 
         if (rawProgress < 1) {
           requestAnimationFrame(animate);
@@ -294,20 +221,15 @@ async function navigateTo(url: string) {
       requestAnimationFrame(animate);
     });
 
-    // 5. Finaliser
     currentMain.remove();
-    overlay.remove();
-
-    // Remettre la page suivante en position normale (static)
+    signalOverlay.svg.remove();
     nextMain.style.cssText = 'position: relative; z-index: 10;';
 
-    // Mettre à jour l'URL
     history.pushState({ path: url }, '', url);
 
-    // Réexécuter les scripts de la nouvelle page
-    nextMain.querySelectorAll('script').forEach(oldScript => {
+    nextMain.querySelectorAll('script').forEach((oldScript) => {
       const newScript = document.createElement('script');
-      if (oldScript.src) {
+      if (oldScript instanceof HTMLScriptElement && oldScript.src) {
         newScript.src = oldScript.src;
       } else {
         newScript.textContent = oldScript.textContent;
@@ -315,18 +237,17 @@ async function navigateTo(url: string) {
       oldScript.parentNode?.replaceChild(newScript, oldScript);
     });
 
-  } catch (err: any) {
-    if (err.name === 'AbortError') return;
+    preloadAdjacentPages(url);
+
+  } catch (err) {
     console.error('Transition error:', err);
     window.location.href = url;
   } finally {
     isTransitioning = false;
-    transitionAbortController = null;
   }
 }
 
-// Intercepter les clics sur les liens de navigation
-function setupNavigationInterception() {
+function setupNavigationInterception(): void {
   document.addEventListener('click', (e: MouseEvent) => {
     const target = e.target as HTMLElement;
     const link = target.closest('a[href]') as HTMLAnchorElement | null;
@@ -335,17 +256,30 @@ function setupNavigationInterception() {
     const href = link.getAttribute('href');
     if (!href) return;
 
-    // Navigation interne uniquement
     if (href.startsWith('/') || href.startsWith(window.location.origin)) {
       const url = href.startsWith('/') ? href : new URL(href).pathname;
-      // Ne pas intercepter si c'est un lien externe ou un téléchargement
       if (link.hasAttribute('target') || link.hasAttribute('download')) return;
       e.preventDefault();
       navigateTo(url);
     }
   });
 
-  // Gérer le bouton retour du navigateur
+  document.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') {
+      const prevLink = document.querySelector('a[data-nav="prev"]') as HTMLAnchorElement | null;
+      if (prevLink) {
+        e.preventDefault();
+        prevLink.click();
+      }
+    } else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') {
+      const nextLink = document.querySelector('a[data-nav="next"]') as HTMLAnchorElement | null;
+      if (nextLink) {
+        e.preventDefault();
+        nextLink.click();
+      }
+    }
+  });
+
   window.addEventListener('popstate', (e) => {
     if (e.state?.path) {
       navigateTo(e.state.path);
@@ -354,13 +288,13 @@ function setupNavigationInterception() {
     }
   });
 
-  // Initialiser l'état history
   if (!history.state?.path) {
     history.replaceState({ path: getCurrentPath() }, '');
   }
+
+  preloadAdjacentPages(getCurrentPath());
 }
 
-// Démarrer
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', setupNavigationInterception);
 } else {

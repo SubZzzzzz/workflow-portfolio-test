@@ -1,0 +1,58 @@
+---
+import { NODE_POSITIONS, getAdjacentConnections } from '../scripts/node-positions';
+
+interface Props {
+  currentPage: string;
+}
+
+const { currentPage } = Astro.props;
+const connections = getAdjacentConnections(currentPage);
+
+const COLOR_BASE = '#1E3050';
+const COLOR_DONE = '#22C55E';
+---
+
+<div class="workflow-connections" aria-hidden="true">
+  <svg
+    viewBox="0 0 100 100"
+    preserveAspectRatio="none"
+    class="w-full h-full"
+  >
+    {connections.map((conn) => {
+      const from = NODE_POSITIONS[conn.from];
+      const to = NODE_POSITIONS[conn.to];
+      if (!from || !to) return null;
+
+      const isDone = NODE_POSITIONS[conn.from] && NODE_POSITIONS[conn.to]
+        ? Object.keys(NODE_POSITIONS).indexOf(conn.from) < Object.keys(NODE_POSITIONS).indexOf(currentPage)
+        : false;
+
+      const strokeColor = isDone ? COLOR_DONE : COLOR_BASE;
+      const opacity = isDone ? '0.6' : '0.3';
+
+      return (
+        <line
+          x1={from.x}
+          y1={from.y}
+          x2={to.x}
+          y2={to.y}
+          stroke={strokeColor}
+          stroke-width="0.2"
+          opacity={opacity}
+          stroke-dasharray="0.5 0.5"
+          data-from={conn.from}
+          data-to={conn.to}
+        />
+      );
+    })}
+  </svg>
+</div>
+
+<style>
+  .workflow-connections {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+  }
+</style>

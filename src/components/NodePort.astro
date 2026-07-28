@@ -3,9 +3,11 @@ interface Props {
   direction: 'top' | 'bottom' | 'left' | 'right';
   status?: 'active' | 'done' | 'idle';
   size?: 'md' | 'lg';
+  href?: string;
+  dataNav?: 'prev' | 'next';
 }
 
-const { direction, status = 'idle', size = 'md' } = Astro.props;
+const { direction, status = 'idle', size = 'md', href, dataNav } = Astro.props;
 
 const portSize = size === 'lg' ? 'w-8 h-8' : 'w-6 h-6';
 const dotSize = size === 'lg' ? 'w-3 h-3' : 'w-2 h-2';
@@ -18,15 +20,23 @@ const colors = {
 
 const color = colors[status];
 
-// Position selon la direction
 const position = {
   top: 'top-0 left-1/2 -translate-x-1/2 -translate-y-1/2',
   bottom: 'bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2',
   left: 'left-0 top-1/2 -translate-y-1/2 -translate-x-1/2',
   right: 'right-0 top-1/2 -translate-y-1/2 translate-x-1/2',
 };
+
+const clickable = !!href;
+const baseClasses = `absolute ${position[direction]} ${portSize} rounded-full border-2 ${color.border} bg-surface flex items-center justify-center ${status !== 'idle' ? `shadow-lg ${color.glow}` : ''} z-20 ${clickable ? 'cursor-pointer hover:scale-125 transition-transform duration-200' : ''}`;
 ---
 
-<div class={`absolute ${position[direction]} ${portSize} rounded-full border-2 ${color.border} bg-surface flex items-center justify-center ${status !== 'idle' ? `shadow-lg ${color.glow}` : ''} z-20`}>
-  <div class={`${dotSize} rounded-full ${color.bg}`}></div>
-</div>
+{href ? (
+  <a href={href} data-nav={dataNav} class:list={[baseClasses, 'pointer-events-auto']} aria-label={`Aller au node ${dataNav === 'prev' ? 'précédent' : 'suivant'}`}>
+    <div class={`${dotSize} rounded-full ${color.bg}`}></div>
+  </a>
+) : (
+  <div class={baseClasses}>
+    <div class={`${dotSize} rounded-full ${color.bg}`}></div>
+  </div>
+)}

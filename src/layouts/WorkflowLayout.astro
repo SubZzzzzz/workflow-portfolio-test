@@ -1,7 +1,7 @@
 ---
 import '../styles/global.css';
-import NavigationArrows from '../components/NavigationArrows.astro';
 import WorkflowMinimap from '../components/WorkflowMinimap.astro';
+import WorkflowConnections from '../components/WorkflowConnections.astro';
 
 interface Props {
   title: string;
@@ -10,6 +10,15 @@ interface Props {
 
 const { title, currentPage } = Astro.props;
 const totalPages = 4;
+
+const pagePaths: Record<number, string> = {
+  1: '/',
+  2: '/services/',
+  3: '/projects/',
+  4: '/contact/',
+};
+
+const currentPath = pagePaths[currentPage] || '/';
 ---
 
 <!doctype html>
@@ -22,13 +31,10 @@ const totalPages = 4;
     <title>{title}</title>
   </head>
   <body>
+    <WorkflowConnections currentPage={currentPath} />
+    
     <WorkflowMinimap
       currentPage={currentPage}
-      totalPages={totalPages}
-    />
-    
-    <NavigationArrows
-      currentNode={currentPage}
       totalPages={totalPages}
     />
     
@@ -36,38 +42,6 @@ const totalPages = 4;
       <slot />
     </main>
     
-    <!-- Moteur de transition avec signal animé -->
     <script type="module" src="../scripts/transition-engine.ts"></script>
-    
-    <script>
-      // Navigation par flèches latérales
-      document.addEventListener('DOMContentLoaded', () => {
-        const arrows = document.querySelectorAll('.nav-arrow');
-        
-        arrows.forEach(arrow => {
-          arrow.addEventListener('click', (e) => {
-            const action = (e.currentTarget as HTMLElement).dataset.action;
-            if (action === 'prev') {
-              const prevLink = document.querySelector('a[data-nav="prev"]');
-              if (prevLink) (prevLink as HTMLAnchorElement).click();
-            } else if (action === 'next') {
-              const nextLink = document.querySelector('a[data-nav="next"]');
-              if (nextLink) (nextLink as HTMLAnchorElement).click();
-            }
-          });
-        });
-
-        // Navigation clavier
-        document.addEventListener('keydown', (e) => {
-          if (e.key === 'ArrowLeft') {
-            const prevLink = document.querySelector('a[data-nav="prev"]');
-            if (prevLink) (prevLink as HTMLAnchorElement).click();
-          } else if (e.key === 'ArrowRight') {
-            const nextLink = document.querySelector('a[data-nav="next"]');
-            if (nextLink) (nextLink as HTMLAnchorElement).click();
-          }
-        });
-      });
-    </script>
   </body>
 </html>
