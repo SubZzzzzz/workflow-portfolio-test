@@ -84,23 +84,31 @@ function getPortPosition(pos: { x: number; y: number }, dir: Direction) {
         const isActive = page.id === currentPage;
         const isPast = page.id < currentPage;
 
-        // Connexion sortante
+        // Connexion sortante (node actuel → suivant)
         const nextIndex = index + 1;
         const hasNext = nextIndex < positions.length;
-        const conn = hasNext ? getConnectionDirection(index, nextIndex) : null;
-        const outPort = conn ? getPortPosition(pos, conn.out) : null;
+        const outConn = hasNext ? getConnectionDirection(index, nextIndex) : null;
+        const outPort = outConn ? getPortPosition(pos, outConn.out) : null;
+        
+        // Connexion entrante (node précédent → node actuel)
+        const prevIndex = index - 1;
+        const hasPrev = prevIndex >= 0;
+        const inConn = hasPrev ? getConnectionDirection(prevIndex, index) : null;
+        const inPort = inConn ? getPortPosition(pos, inConn.in) : null;
+        
+        // Port d'entrée du node suivant (pour dessiner la ligne)
         const nextPos = hasNext ? positions[nextIndex] : null;
-        const inPort = (conn && nextPos) ? getPortPosition(nextPos, conn.in) : null;
+        const nextInPort = (outConn && nextPos) ? getPortPosition(nextPos, outConn.in) : null;
 
         return (
           <g>
             {/* Ligne de connexion (port de sortie → port d'entrée du suivant) */}
-            {hasNext && outPort && inPort && (
+            {hasNext && outPort && nextInPort && (
               <line
                 x1={outPort.cx}
                 y1={outPort.cy}
-                x2={inPort.cx}
-                y2={inPort.cy}
+                x2={nextInPort.cx}
+                y2={nextInPort.cy}
                 stroke={isPast ? '#E8B86A' : '#1E3050'}
                 stroke-width={isPast ? '2' : '1.5'}
                 opacity={isPast ? '0.8' : '0.5'}
@@ -136,10 +144,10 @@ function getPortPosition(pos: { x: number; y: number }, dir: Direction) {
               </text>
 
               {/* Port d'entrée (si ce n'est pas le premier node) */}
-              {index > 0 && conn && (
+              {hasPrev && inPort && (
                 <circle
-                  cx={getPortPosition(pos, conn.in).cx}
-                  cy={getPortPosition(pos, conn.in).cy}
+                  cx={inPort.cx}
+                  cy={inPort.cy}
                   r={portRadius}
                   fill={isPast || isActive ? '#E8B86A' : '#0A1628'}
                   stroke={isPast || isActive ? '#E8B86A' : '#2A4060'}
