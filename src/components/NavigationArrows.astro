@@ -9,33 +9,40 @@ const isFirst = currentNode === 1;
 const isLast = currentNode === totalPages;
 ---
 
-<div class="fixed top-1/2 left-0 right-0 z-50 -translate-y-1/2 pointer-events-none flex items-center justify-between px-4 md:px-8">
-  <!-- Flèche gauche -->
+<div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-6 pointer-events-none">
+  <!-- Flèche gauche (node précédent) -->
   <button
-    class="nav-arrow pointer-events-auto group flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full border border-border bg-surface/80 backdrop-blur-sm transition-all duration-200 hover:border-accent hover:bg-accent/10 disabled:opacity-30 disabled:cursor-not-allowed"
+    class="nav-arrow pointer-events-auto group flex items-center justify-center w-10 h-10 rounded-full border transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
     disabled={isFirst}
     data-action="prev"
     aria-label="Node précédent"
+    style:border-color={isFirst ? '#1E3050' : '#22C55E'}
+    style:background-color={isFirst ? 'rgba(30, 48, 80, 0.3)' : 'rgba(34, 197, 94, 0.1)'}
   >
     <svg
-      class="w-6 h-6 text-fg group-hover:text-accent transition-colors"
+      class="w-5 h-5 transition-colors"
       fill="none"
-      stroke="currentColor"
+      stroke={isFirst ? '#1E3050' : '#22C55E'}
       viewBox="0 0 24 24"
     >
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
     </svg>
   </button>
 
-  <!-- Flèche droite -->
+  <!-- Indicateur de page -->
+  <div class="font-mono text-xs text-fg-dim pointer-events-none">
+    {currentNode} / {totalPages}
+  </div>
+
+  <!-- Flèche droite (node suivant) -->
   <button
-    class="nav-arrow pointer-events-auto group flex items-center justify-center w-12 h-12 md:w-14 md:h-14 rounded-full border border-border bg-surface/80 backdrop-blur-sm transition-all duration-200 hover:border-accent hover:bg-accent/10 disabled:opacity-30 disabled:cursor-not-allowed"
+    class="nav-arrow pointer-events-auto group flex items-center justify-center w-10 h-10 rounded-full border border-accent bg-accent/10 transition-all duration-200 hover:bg-accent/20 disabled:opacity-30 disabled:cursor-not-allowed"
     disabled={isLast}
     data-action="next"
     aria-label="Node suivant"
   >
     <svg
-      class="w-6 h-6 text-fg group-hover:text-accent transition-colors"
+      class="w-5 h-5 text-accent"
       fill="none"
       stroke="currentColor"
       viewBox="0 0 24 24"
@@ -44,19 +51,3 @@ const isLast = currentNode === totalPages;
     </svg>
   </button>
 </div>
-
-<style>
-  .nav-arrow {
-    /* Positioning handled by parent flex container */
-  }
-
-  @media (max-width: 767px) {
-    .nav-arrow:first-child {
-      margin-left: 4px;
-    }
-
-    .nav-arrow:last-child {
-      margin-right: 4px;
-    }
-  }
-</style>

@@ -56,7 +56,7 @@ body::before {
   background-position: 0 0, 0 0, -1px -1px;
 }
 
-/* Nodes fantômes en arrière-plan */
+/* Nodes fantômes en arrière-plan — layout zigzag */
 body::after {
   content: '';
   position: fixed;
@@ -66,8 +66,8 @@ body::after {
   height: 100%;
   pointer-events: none;
   z-index: 0;
-  opacity: 0.05;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1200 800' fill='none'%3E%3C!-- Nodes fantômes --%3E%3Crect x='100' y='150' width='120' height='40' rx='4' stroke='%2360A5FA' stroke-width='1' fill='rgba(21, 34, 56, 0.5)'/%3E%3Crect x='350' y='100' width='100' height='36' rx='4' stroke='%2360A5FA' stroke-width='1' fill='rgba(21, 34, 56, 0.5)'/%3E%3Crect x='700' y='200' width='140' height='44' rx='4' stroke='%23E8B86A' stroke-width='1' fill='rgba(21, 34, 56, 0.5)'/%3E%3Crect x='950' y='120' width='110' height='38' rx='4' stroke='%2360A5FA' stroke-width='1' fill='rgba(21, 34, 56, 0.5)'/%3E%3Crect x='200' y='500' width='130' height='42' rx='4' stroke='%23E8B86A' stroke-width='1' fill='rgba(21, 34, 56, 0.5)'/%3E%3Crect x='500' y='600' width='115' height='40' rx='4' stroke='%2360A5FA' stroke-width='1' fill='rgba(21, 34, 56, 0.5)'/%3E%3Crect x='850' y='550' width='125' height='38' rx='4' stroke='%2360A5FA' stroke-width='1' fill='rgba(21, 34, 56, 0.5)'/%3E%3Crect x='1050' y='450' width='105' height='36' rx='4' stroke='%23E8B86A' stroke-width='1' fill='rgba(21, 34, 56, 0.5)'/%3E%3C!-- Connexions entre nodes --%3E%3Cpath d='M 220 170 C 260 140, 310 130, 350 118' stroke='%2360A5FA' stroke-width='1' opacity='0.6'/%3E%3Cpath d='M 450 118 C 520 140, 620 160, 700 178' stroke='%23E8B86A' stroke-width='1' opacity='0.6'/%3E%3Cpath d='M 840 190 C 880 170, 910 150, 950 138' stroke='%2360A5FA' stroke-width='1' opacity='0.6'/%3E%3Cpath d='M 330 520 C 380 540, 440 560, 500 580' stroke='%23E8B86A' stroke-width='1' opacity='0.6'/%3E%3Cpath d='M 615 610 C 680 600, 770 580, 850 568' stroke='%2360A5FA' stroke-width='1' opacity='0.6'/%3E%3Cpath d='M 975 560 C 1010 540, 1030 500, 1050 468' stroke='%23E8B86A' stroke-width='1' opacity='0.6'/%3E%3C!-- Ports sur les nodes --%3E%3Ccircle cx='104' cy='170' r='3' fill='%230A1628' stroke='%2360A5FA' stroke-width='1'/%3E%3Ccircle cx='216' cy='170' r='3' fill='%230A1628' stroke='%2360A5FA' stroke-width='1'/%3E%3Ccircle cx='354' cy='118' r='3' fill='%230A1628' stroke='%2360A5FA' stroke-width='1'/%3E%3Ccircle cx='446' cy='118' r='3' fill='%230A1628' stroke='%2360A5FA' stroke-width='1'/%3E%3Ccircle cx='704' cy='200' r='3' fill='%230A1628' stroke='%23E8B86A' stroke-width='1'/%3E%3Ccircle cx='836' cy='200' r='3' fill='%230A1628' stroke='%23E8B86A' stroke-width='1'/%3E%3C/svg%3E");
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 1600 1400' fill='none'%3E%3C!-- Nodes fantômes (layout zigzag) --%3E%3Crect x='80' y='80' width='640' height='224' rx='8' stroke='%23E8B86A' stroke-width='1' fill='rgba(21, 34, 56, 0.3)'/%3E%3Crect x='80' y='560' width='640' height='224' rx='8' stroke='%2360A5FA' stroke-width='1' fill='rgba(21, 34, 56, 0.3)'/%3E%3Crect x='880' y='560' width='640' height='224' rx='8' stroke='%2360A5FA' stroke-width='1' fill='rgba(21, 34, 56, 0.3)'/%3E%3Crect x='880' y='1040' width='640' height='224' rx='8' stroke='%23E8B86A' stroke-width='1' fill='rgba(21, 34, 56, 0.3)'/%3E%3C!-- Connexions zigzag --%3E%3Cpath d='M 400 304 L 400 560' stroke='%23E8B86A' stroke-width='2' opacity='0.6'/%3E%3Cpath d='M 720 672 L 880 672' stroke='%2360A5FA' stroke-width='2' opacity='0.6'/%3E%3Cpath d='M 1200 784 L 1200 1040' stroke='%23E8B86A' stroke-width='2' opacity='0.6'/%3E%3C!-- Ports sur les nodes --%3E%3Ccircle cx='400' cy='304' r='8' fill='%230A1628' stroke='%23E8B86A' stroke-width='2'/%3E%3Ccircle cx='400' cy='560' r='8' fill='%230A1628' stroke='%2360A5FA' stroke-width='2'/%3E%3Ccircle cx='720' cy='672' r='8' fill='%230A1628' stroke='%2360A5FA' stroke-width='2'/%3E%3Ccircle cx='880' cy='672' r='8' fill='%230A1628' stroke='%2360A5FA' stroke-width='2'/%3E%3Ccircle cx='1200' cy='784' r='8' fill='%230A1628' stroke='%2360A5FA' stroke-width='2'/%3E%3Ccircle cx='1200' cy='1040' r='8' fill='%230A1628' stroke='%23E8B86A' stroke-width='2'/%3E%3C/svg%3E");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -90,6 +90,50 @@ h1, h2, h3 {
 ::selection {
   background-color: var(--color-accent);
   color: var(--color-bg);
+}
+
+/* Page entrance animations */
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes drawLine {
+  from { stroke-dashoffset: 1000; }
+  to { stroke-dashoffset: 0; }
+}
+
+.page-enter {
+  animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.page-enter-delay-1 {
+  opacity: 0;
+  animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.15s forwards;
+}
+
+.page-enter-delay-2 {
+  opacity: 0;
+  animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.3s forwards;
+}
+
+.page-enter-delay-3 {
+  opacity: 0;
+  animation: fadeSlideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.45s forwards;
+}
+
+.sub-node {
+  animation: scaleIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
 }
 
 /* Scrollbar custom */

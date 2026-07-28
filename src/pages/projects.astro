@@ -3,7 +3,7 @@ import WorkflowLayout from '../layouts/WorkflowLayout.astro';
 ---
 
 <WorkflowLayout title="Projets" currentPage={3}>
-  <section class="min-h-screen flex items-center justify-center pt-20 pb-8 px-6">
+  <section class="min-h-screen flex items-center justify-center pt-20 pb-8 px-6 page-enter">
     <div class="max-w-5xl w-full">
       <!-- Header -->
       <div class="mb-16">
@@ -19,7 +19,7 @@ import WorkflowLayout from '../layouts/WorkflowLayout.astro';
       </div>
 
       <!-- Sous-nodes : Projets -->
-      <div class="space-y-6">
+      <div class="space-y-6 page-enter-delay-1">
         <div class="sub-node p-8 rounded-lg border border-border bg-bg-elevated hover:border-accent transition-all cursor-pointer group">
           <div class="flex items-start justify-between mb-4">
             <div class="font-mono text-xs text-fg-dim">Projet 01</div>

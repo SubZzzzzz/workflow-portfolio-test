@@ -3,7 +3,7 @@ import WorkflowLayout from '../layouts/WorkflowLayout.astro';
 ---
 
 <WorkflowLayout title="Contact" currentPage={4}>
-  <section class="min-h-screen flex items-center justify-center pt-20 pb-8 px-6">
+  <section class="min-h-screen flex items-center justify-center pt-20 pb-8 px-6 page-enter">
     <div class="max-w-4xl w-full">
       <!-- Header -->
       <div class="mb-16 text-center">
@@ -19,7 +19,7 @@ import WorkflowLayout from '../layouts/WorkflowLayout.astro';
       </div>
 
       <!-- Formulaire -->
-      <div class="bg-surface border border-border rounded-lg p-8 md:p-12">
+      <div class="bg-surface border border-border rounded-lg p-8 md:p-12 page-enter-delay-1">
         <form class="space-y-6">
           <div class="grid md:grid-cols-2 gap-6">
             <div>
