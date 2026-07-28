@@ -1,6 +1,6 @@
 import { NODE_POSITIONS, getAdjacentConnections } from './node-positions';
 
-const COLOR_BASE = '#1E3050';
+const COLOR_BASE = '#2A4A70';
 const COLOR_DONE = '#22C55E';
 
 let svgElement: SVGSVGElement | null = null;
@@ -60,8 +60,8 @@ function drawLines(): void {
     line.setAttribute('y2', `${y2}`);
     line.setAttribute('stroke', isDone ? COLOR_DONE : COLOR_BASE);
     line.setAttribute('stroke-width', '2');
-    line.setAttribute('opacity', isDone ? '0.5' : '0.25');
-    line.setAttribute('stroke-dasharray', '6 4');
+    line.setAttribute('opacity', isDone ? '0.6' : '0.4');
+    line.setAttribute('stroke-dasharray', '8 5');
     svgElement!.appendChild(line);
   });
 }
