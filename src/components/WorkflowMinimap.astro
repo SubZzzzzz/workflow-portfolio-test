@@ -51,11 +51,12 @@ function getConnectionDirection(fromIdx: number, toIdx: number): { out: Directio
 }
 
 function getPortPosition(pos: { x: number; y: number }, dir: Direction) {
+  const offset = 1; // port dépasse de 1px à l'extérieur du bord (~60% dehors)
   switch (dir) {
-    case 'top': return { cx: pos.x + nodeWidth / 2, cy: pos.y + 2 };
-    case 'bottom': return { cx: pos.x + nodeWidth / 2, cy: pos.y + nodeHeight - 2 };
-    case 'left': return { cx: pos.x + 2, cy: pos.y + nodeHeight / 2 };
-    case 'right': return { cx: pos.x + nodeWidth - 2, cy: pos.y + nodeHeight / 2 };
+    case 'top': return { cx: pos.x + nodeWidth / 2, cy: pos.y - offset };
+    case 'bottom': return { cx: pos.x + nodeWidth / 2, cy: pos.y + nodeHeight + offset };
+    case 'left': return { cx: pos.x - offset, cy: pos.y + nodeHeight / 2 };
+    case 'right': return { cx: pos.x + nodeWidth + offset, cy: pos.y + nodeHeight / 2 };
   }
 }
 ---
