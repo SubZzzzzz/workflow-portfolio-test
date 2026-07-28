@@ -1,12 +1,12 @@
-// Transition Engine — Effet scroll continu + signal synchronisé
+// Transition Engine — Scroll continu sans démarcation + signal synchronisé
 
 import { preloadAdjacentPages, getCachedPage } from './page-cache';
 import { NODE_POSITIONS, getSlideDirection, type SlideDirection } from './node-positions';
-import { getPortPosition, getNodePositionPx, refreshLines } from './workflow-lines';
+import { getNodePositionPx, refreshLines } from './workflow-lines';
 
 const COLOR_SIGNAL = '#F97316';
 const COLOR_SIGNAL_END = '#22C55E';
-const TRANSITION_DURATION = 1200;
+const TRANSITION_DURATION = 1000;
 const PAGE_ORDER = ['/', '/services/', '/projects/', '/contact/'];
 
 let isTransitioning = false;
@@ -65,7 +65,7 @@ function createSignalOverlay(fromPath: string, toPath: string): SignalElements |
 
   const svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
   svg.setAttribute('viewBox', `0 0 ${w} ${h}`);
-  svg.style.cssText = 'position:fixed;inset:0;z-index:200;pointer-events:none;width:100vw;height:100vh;';
+  svg.style.cssText = 'position:fixed;inset:0;z-index:300;pointer-events:none;width:100vw;height:100vh;';
 
   const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
   defs.innerHTML = `
@@ -145,6 +145,13 @@ async function navigateTo(url: string): Promise<void> {
 
   isTransitioning = true;
 
+  const currentMain = document.querySelector('main') as HTMLElement;
+  if (!currentMain) { isTransitioning = false; return; }
+
+  const originalStyles = currentMain.style.cssText;
+  let wrapper: HTMLElement | null = null;
+  let signal: SignalElements | null = null;
+
   try {
     let html = getCachedPage(url);
     if (!html) {
@@ -156,54 +163,39 @@ async function navigateTo(url: string): Promise<void> {
     const slideDirection = getSlideDirection(currentPath, url);
     const isVertical = slideDirection === 'up' || slideDirection === 'down';
 
-    const currentMain = document.querySelector('main') as HTMLElement;
-    if (!currentMain) return;
-
     // Wrapper fixed avec overflow hidden
-    const wrapper = document.createElement('div');
+    wrapper = document.createElement('div');
     wrapper.style.cssText = 'position:fixed;inset:0;z-index:100;overflow:hidden;';
 
-    // Container interne qui contient les 2 pages côte à côte
+    // Container interne
     const inner = document.createElement('div');
-    inner.style.willChange = 'transform';
-
     if (isVertical) {
-      inner.style.cssText += 'position:absolute;top:0;left:0;width:100%;height:200vh;';
+      inner.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:200vh;will-change:transform;';
     } else {
-      inner.style.cssText += 'position:absolute;top:0;left:0;width:200vw;height:100%;';
+      inner.style.cssText = 'position:absolute;top:0;left:0;width:200vw;height:100%;will-change:transform;';
     }
 
-    // Clone de la page actuelle
-    const currentClone = document.createElement('main');
-    currentClone.className = currentMain.className;
-    currentClone.innerHTML = currentMain.innerHTML;
-    if (isVertical) {
-      currentClone.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100vh;overflow-y:auto;';
-    } else {
-      currentClone.style.cssText = 'position:absolute;top:0;left:0;width:100vw;height:100%;overflow-x:auto;';
-    }
+    // DÉPLACER le main original dans le inner (pas de clone !)
+    currentMain.style.cssText = 'position:absolute;top:0;left:0;width:100%;height:100vh;overflow:hidden;';
+    inner.appendChild(currentMain);
 
     // Page suivante positionnée juste après
-    const nextMainEl = document.createElement('main');
-    nextMainEl.className = currentMain.className;
-    nextMainEl.innerHTML = newMainHTML;
+    const nextMain = document.createElement('main');
+    nextMain.className = 'relative z-10';
+    nextMain.innerHTML = newMainHTML;
     if (isVertical) {
       const topPos = slideDirection === 'up' ? '100vh' : '-100vh';
-      nextMainEl.style.cssText = `position:absolute;top:${topPos};left:0;width:100%;height:100vh;overflow-y:auto;`;
+      nextMain.style.cssText = `position:absolute;top:${topPos};left:0;width:100%;height:100vh;overflow:hidden;`;
     } else {
       const leftPos = slideDirection === 'left' ? '100vw' : '-100vw';
-      nextMainEl.style.cssText = `position:absolute;top:0;left:${leftPos};width:100vw;height:100%;overflow-x:auto;`;
+      nextMain.style.cssText = `position:absolute;top:0;left:${leftPos};width:100vw;height:100%;overflow:hidden;`;
     }
+    inner.appendChild(nextMain);
 
-    inner.appendChild(currentClone);
-    inner.appendChild(nextMainEl);
     wrapper.appendChild(inner);
 
     // Signal overlay
-    const signal = createSignalOverlay(currentPath, url);
-
-    // Cacher le main original
-    currentMain.style.visibility = 'hidden';
+    signal = createSignalOverlay(currentPath, url);
 
     // Ajouter au DOM
     document.body.appendChild(wrapper);
@@ -218,7 +210,6 @@ async function navigateTo(url: string): Promise<void> {
         const raw = Math.min(elapsed / TRANSITION_DURATION, 1);
         const eased = easeInOutCubic(raw);
 
-        // Scroll continu du container
         if (isVertical) {
           const offset = eased * window.innerHeight;
           inner.style.transform = `translateY(${slideDirection === 'up' ? -offset : offset}px)`;
@@ -227,7 +218,6 @@ async function navigateTo(url: string): Promise<void> {
           inner.style.transform = `translateX(${slideDirection === 'left' ? -offset : offset}px)`;
         }
 
-        // Signal synchronisé
         if (signal) updateSignal(signal, eased);
 
         if (raw < 1) {
@@ -239,20 +229,18 @@ async function navigateTo(url: string): Promise<void> {
       requestAnimationFrame(frame);
     });
 
-    // Finaliser : remplacer le contenu du main original
-    currentMain.innerHTML = newMainHTML;
-    currentMain.style.visibility = '';
-    currentMain.style.cssText = 'position:relative;z-index:10;';
-
-    // Cleanup
+    // Finaliser : extraire nextMain du wrapper et le mettre dans le body
+    nextMain.style.cssText = 'position:relative;z-index:10;';
+    document.body.insertBefore(nextMain, wrapper);
     wrapper.remove();
-    if (signal) signal.svg.remove();
+    wrapper = null;
+    if (signal) { signal.svg.remove(); signal = null; }
 
     // URL
     history.pushState({ path: url }, '', url);
 
-    // Ré-exécuter les scripts de la nouvelle page
-    currentMain.querySelectorAll('script').forEach((oldScript) => {
+    // Ré-exécuter les scripts
+    nextMain.querySelectorAll('script').forEach((oldScript) => {
       const newScript = document.createElement('script');
       if (oldScript instanceof HTMLScriptElement && oldScript.src) {
         newScript.src = oldScript.src;
@@ -262,14 +250,20 @@ async function navigateTo(url: string): Promise<void> {
       oldScript.parentNode?.replaceChild(newScript, oldScript);
     });
 
-    // Rafraîchir les liens SVG
     refreshLines();
-
-    // Pré-charger les pages adjacentes
     preloadAdjacentPages(url);
 
   } catch (err) {
     console.error('Transition error:', err);
+    // En cas d'erreur, remettre le main original dans le body
+    if (wrapper) {
+      if (currentMain.parentNode && currentMain.parentNode !== document.body) {
+        currentMain.style.cssText = originalStyles;
+        document.body.insertBefore(currentMain, wrapper);
+      }
+      wrapper.remove();
+    }
+    if (signal) signal.svg.remove();
     window.location.href = url;
   } finally {
     isTransitioning = false;

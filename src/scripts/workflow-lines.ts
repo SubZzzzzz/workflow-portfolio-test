@@ -98,3 +98,9 @@ export function refreshLines(): void {
   measurePorts();
   drawLines();
 }
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', () => initWorkflowLines());
+} else {
+  initWorkflowLines();
+}
