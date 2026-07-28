@@ -7,47 +7,71 @@ interface Props {
 const { currentNode, totalPages } = Astro.props;
 const isFirst = currentNode === 1;
 const isLast = currentNode === totalPages;
+
+// Layout zigzag (mêmes positions que la minimap)
+const positions = [
+  { x: 10, y: 10 },      // Start
+  { x: 10, y: 70 },      // Services
+  { x: 110, y: 70 },     // Projects
+  { x: 110, y: 130 },    // Contact
+];
+
+type Direction = 'top' | 'bottom' | 'left' | 'right';
+
+function getDirection(fromIdx: number, toIdx: number): Direction {
+  const from = positions[fromIdx];
+  const to = positions[toIdx];
+  if (from.x === to.x) {
+    return from.y < to.y ? 'bottom' : 'top';
+  }
+  return from.x < to.x ? 'right' : 'left';
+}
+
+const currentIndex = currentNode - 1;
+const prevDirection = currentIndex > 0 ? getDirection(currentIndex, currentIndex - 1) : null;
+const nextDirection = currentIndex < positions.length - 1 ? getDirection(currentIndex, currentIndex + 1) : null;
+
+function getPosition(dir: Direction) {
+  switch (dir) {
+    case 'top': return 'fixed top-20 left-1/2 -translate-x-1/2';
+    case 'bottom': return 'fixed bottom-6 left-1/2 -translate-x-1/2';
+    case 'left': return 'fixed left-4 top-1/2 -translate-y-1/2';
+    case 'right': return 'fixed right-4 top-1/2 -translate-y-1/2';
+  }
+}
+
+function getRotation(dir: Direction) {
+  switch (dir) {
+    case 'top': return 'rotate-180';
+    case 'bottom': return 'rotate-0';
+    case 'left': return 'rotate-90';
+    case 'right': return '-rotate-90';
+  }
+}
 ---
 
-<div class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-6 pointer-events-none">
-  <!-- Flèche gauche (node précédent) -->
+<!-- Flèche précédent (verte — node validé) -->
+{prevDirection && !isFirst && (
   <button
-    class="nav-arrow pointer-events-auto group flex items-center justify-center w-10 h-10 rounded-full border transition-all duration-200 disabled:opacity-30 disabled:cursor-not-allowed"
-    disabled={isFirst}
+    class={`nav-arrow pointer-events-auto flex items-center justify-center w-12 h-12 rounded-full border border-green-500/50 bg-green-500/10 transition-all duration-200 hover:bg-green-500/20 hover:scale-110 ${getPosition(prevDirection)}`}
     data-action="prev"
     aria-label="Node précédent"
-    style:border-color={isFirst ? '#1E3050' : '#22C55E'}
-    style:background-color={isFirst ? 'rgba(30, 48, 80, 0.3)' : 'rgba(34, 197, 94, 0.1)'}
   >
-    <svg
-      class="w-5 h-5 transition-colors"
-      fill="none"
-      stroke={isFirst ? '#1E3050' : '#22C55E'}
-      viewBox="0 0 24 24"
-    >
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+    <svg class={`w-6 h-6 text-green-500 ${getRotation(prevDirection)}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14M5 12l7 7 7-7" />
     </svg>
   </button>
+)}
 
-  <!-- Indicateur de page -->
-  <div class="font-mono text-xs text-fg-dim pointer-events-none">
-    {currentNode} / {totalPages}
-  </div>
-
-  <!-- Flèche droite (node suivant) -->
+<!-- Flèche suivant (orange — node en cours) -->
+{nextDirection && !isLast && (
   <button
-    class="nav-arrow pointer-events-auto group flex items-center justify-center w-10 h-10 rounded-full border border-accent bg-accent/10 transition-all duration-200 hover:bg-accent/20 disabled:opacity-30 disabled:cursor-not-allowed"
-    disabled={isLast}
+    class={`nav-arrow pointer-events-auto flex items-center justify-center w-12 h-12 rounded-full border border-orange-500/50 bg-orange-500/10 transition-all duration-200 hover:bg-orange-500/20 hover:scale-110 ${getPosition(nextDirection)}`}
     data-action="next"
     aria-label="Node suivant"
   >
-    <svg
-      class="w-5 h-5 text-accent"
-      fill="none"
-      stroke="currentColor"
-      viewBox="0 0 24 24"
-    >
-      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+    <svg class={`w-6 h-6 text-orange-500 ${getRotation(nextDirection)}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v14M5 12l7 7 7-7" />
     </svg>
   </button>
-</div>
+)}
