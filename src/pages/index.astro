@@ -3,84 +3,82 @@ import WorkflowLayout from '../layouts/WorkflowLayout.astro';
 ---
 
 <WorkflowLayout title="Accueil" currentPage={1}>
-  <section class="min-h-screen flex items-center justify-center px-6 py-32 relative">
-    
-    <!-- Node géant central -->
-    <div class="relative max-w-6xl w-full">
+  <section class="min-h-screen flex items-center justify-center relative">
+    <div class="relative w-full h-screen flex items-center justify-center">
       
-      <!-- Cadre du node -->
-      <div class="relative border-2 border-border bg-surface/50 backdrop-blur-sm rounded-lg p-12 md:p-16">
-        
-        <!-- Port input (gauche) - invisible car premier node -->
-        
-        <!-- Port output (droite) -->
-        <div class="absolute -right-3 top-1/2 -translate-y-1/2 w-6 h-6 rounded-full bg-[#D97706] border-2 border-[#D97706] z-20"></div>
-        
-        <!-- Ligne de connexion vers le node suivant -->
-        <div class="absolute top-1/2 -translate-y-1/2 z-10" style="left: calc(100% + 10px);">
-          <svg width="500" height="80" class="overflow-visible">
-            <path
-              d="M 0 40 C 200 40, 400 55, 500 70"
-              fill="none"
-              stroke="#4A5568"
-              stroke-width="2"
-              opacity="0.5"
-              stroke-dasharray="6 4"
-            />
-          </svg>
-        </div>
-        
-        <!-- Contenu du node -->
-        <div class="relative z-10">
-          <!-- Header -->
-          <div class="mb-12">
-            <p class="font-mono text-sm text-accent tracking-widest uppercase mb-6">
-              Développeur Freelance — Automatisation & IA
-            </p>
-            <h1 class="text-6xl md:text-8xl text-fg mb-8 leading-tight">
-              Achille Robbe
-            </h1>
-            <p class="text-xl md:text-2xl text-fg-dim max-w-3xl leading-relaxed">
-              Je construis des workflows intelligents qui automatisent vos processus métier. 
-              Des agents IA aux intégrations complexes, je connecte vos outils pour libérer votre temps.
-            </p>
-          </div>
-
-          <!-- Sous-nodes -->
-          <div class="grid md:grid-cols-3 gap-6 mt-16">
-            <div class="sub-node p-6 rounded-lg border border-border bg-bg-elevated hover:border-accent transition-colors cursor-pointer">
-              <div class="font-mono text-xs text-fg-dim mb-3">01</div>
-              <h3 class="font-serif-display text-2xl text-fg mb-2">Qui je suis</h3>
-              <p class="text-sm text-fg-dim">Développeur freelance spécialisé en automatisation</p>
+      <!-- Node géant central -->
+      <div class="relative max-w-6xl w-full px-6">
+        <div class="relative border-2 border-border bg-surface/50 backdrop-blur-sm rounded-lg p-12 md:p-16">
+          
+          <!-- Contenu du node -->
+          <div class="relative z-10">
+            <!-- Header -->
+            <div class="mb-12">
+              <p class="font-mono text-sm text-accent tracking-widest uppercase mb-6">
+                Développeur Freelance — Automatisation & IA
+              </p>
+              <h1 class="text-6xl md:text-8xl text-fg mb-8 leading-tight">
+                Achille Robbe
+              </h1>
+              <p class="text-xl md:text-2xl text-fg-dim max-w-3xl leading-relaxed">
+                Je construis des workflows intelligents qui automatisent vos processus métier. 
+                Des agents IA aux intégrations complexes, je connecte vos outils pour libérer votre temps.
+              </p>
             </div>
 
-            <div class="sub-node p-6 rounded-lg border border-border bg-bg-elevated hover:border-accent transition-colors cursor-pointer">
-              <div class="font-mono text-xs text-fg-dim mb-3">02</div>
-              <h3 class="font-serif-display text-2xl text-fg mb-2">Ce que je fais</h3>
-              <p class="text-sm text-fg-dim">Workflows, agents IA, intégrations sur mesure</p>
+            <!-- Sous-nodes -->
+            <div class="grid md:grid-cols-3 gap-6 mt-16">
+              <div class="sub-node p-6 rounded-lg border border-border bg-bg-elevated hover:border-accent transition-colors cursor-pointer">
+                <div class="font-mono text-xs text-fg-dim mb-3">01</div>
+                <h3 class="font-serif-display text-2xl text-fg mb-2">Qui je suis</h3>
+                <p class="text-sm text-fg-dim">Développeur freelance spécialisé en automatisation</p>
+              </div>
+
+              <div class="sub-node p-6 rounded-lg border border-border bg-bg-elevated hover:border-accent transition-colors cursor-pointer">
+                <div class="font-mono text-xs text-fg-dim mb-3">02</div>
+                <h3 class="font-serif-display text-2xl text-fg mb-2">Ce que je fais</h3>
+                <p class="text-sm text-fg-dim">Workflows, agents IA, intégrations sur mesure</p>
+              </div>
+
+              <div class="sub-node p-6 rounded-lg border border-border bg-bg-elevated hover:border-accent transition-colors cursor-pointer">
+                <div class="font-mono text-xs text-fg-dim mb-3">03</div>
+                <h3 class="font-serif-display text-2xl text-fg mb-2">Pourquoi l'automatisation</h3>
+                <p class="text-sm text-fg-dim">Libérer du temps pour ce qui compte vraiment</p>
+              </div>
             </div>
 
-            <div class="sub-node p-6 rounded-lg border border-border bg-bg-elevated hover:border-accent transition-colors cursor-pointer">
-              <div class="font-mono text-xs text-fg-dim mb-3">03</div>
-              <h3 class="font-serif-display text-2xl text-fg mb-2">Pourquoi l'automatisation</h3>
-              <p class="text-sm text-fg-dim">Libérer du temps pour ce qui compte vraiment</p>
+            <!-- CTA Navigation -->
+            <div class="mt-16">
+              <a
+                href="/services/"
+                data-nav="next"
+                class="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-accent text-bg font-semibold hover:bg-accent/90 transition-colors"
+              >
+                <span>Découvrir mes services</span>
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                </svg>
+              </a>
             </div>
-          </div>
-
-          <!-- CTA Navigation -->
-          <div class="mt-16">
-            <a
-              href="/services/"
-              data-nav="next"
-              class="inline-flex items-center gap-3 px-8 py-4 rounded-full bg-accent text-bg font-semibold hover:bg-accent/90 transition-colors"
-            >
-              <span>Découvrir mes services</span>
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
-              </svg>
-            </a>
           </div>
         </div>
+      </div>
+      
+      <!-- Port output (droite) -->
+      <div class="absolute top-[calc(50%+30px)] -translate-y-1/2 left-[calc(50%+576px+12px)] w-6 h-6 rounded-full bg-[#D97706] border-2 border-[#D97706] z-20 hidden md:block"></div>
+      
+      <!-- Ligne de connexion sortante -->
+      <div class="absolute top-[calc(50%+30px)] -translate-y-1/2 left-[calc(50%+576px+10px)] z-10 hidden md:block">
+        <svg width="500" height="80" class="overflow-visible">
+          <path
+            d="M 0 40 C 200 40, 400 55, 500 70"
+            fill="none"
+            stroke="#4A5568"
+            stroke-width="2"
+            opacity="0.5"
+            stroke-dasharray="6 4"
+          />
+        </svg>
       </div>
     </div>
   </section>
